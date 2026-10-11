@@ -29,6 +29,18 @@ let adminAuth = sessionStorage.getItem("ride-admin") || "";
 let selectedPhoto;
 let pendingFile;
 let pinHandler;
+const overviewLayers = new Map();
+let auditedRoutes = [];
+const routeColors = [
+  "#ed6943",
+  "#236e58",
+  "#1677a3",
+  "#7451a6",
+  "#ca7a20",
+  "#b94262",
+  "#3d7d43",
+  "#675647",
+];
 
 const driveDestination = encodeURIComponent(`${PARKING.lat},${PARKING.lon}`);
 document.querySelector("#apple-drive").href =
@@ -134,6 +146,81 @@ sheetToggle.addEventListener("click", () => setSheet(true));
 document
   .querySelector("#sheet-close")
   .addEventListener("click", () => setSheet(false));
+
+function setRoutesBrowser(open) {
+  document.querySelector("#routes-browser").classList.toggle("open", open);
+  document
+    .querySelector("#routes-open")
+    .setAttribute("aria-expanded", String(open));
+}
+document
+  .querySelector("#routes-open")
+  .addEventListener("click", () => setRoutesBrowser(true));
+document
+  .querySelector("#routes-close")
+  .addEventListener("click", () => setRoutesBrowser(false));
+
+function applyOverviewFilters() {
+  const area = document.querySelector("#overview-area").value;
+  const category = document.querySelector("#overview-distance").value;
+  auditedRoutes.forEach((route) => {
+    const visible =
+      (area === "all" || route.area === area) &&
+      (category === "all" || route.category === category);
+    document.querySelector(`[data-overview-route="${route.id}"]`).hidden =
+      !visible;
+    const layer = overviewLayers.get(route.id);
+    if (!layer) return;
+    if (visible && !map.hasLayer(layer)) layer.addTo(map);
+    if (!visible && map.hasLayer(layer)) map.removeLayer(layer);
+  });
+}
+
+async function loadOverview() {
+  const audit = await fetch("routes-audit.json").then((response) =>
+    response.json(),
+  );
+  auditedRoutes = audit.routes;
+  document.querySelector("#routes-open b").textContent = auditedRoutes.length;
+  const list = document.querySelector("#overview-list");
+  const allBounds = L.latLngBounds();
+  for (const [index, route] of auditedRoutes.entries()) {
+    const button = document.createElement("button");
+    const verified = route.verification === "map-verified-field-pending";
+    button.type = "button";
+    button.className = `overview-route${verified ? " verified" : ""}`;
+    button.dataset.overviewRoute = route.id;
+    button.innerHTML = `<strong>${route.name}</strong><span>${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m · ${verified ? "地图已核验" : "候选待核验"}</span>`;
+    list.append(button);
+    const data = await fetch(route.file).then((response) => response.json());
+    allBounds.extend(L.geoJSON(data).getBounds());
+    if (route.id !== ROUTE_ID) {
+      const layer = L.geoJSON(data, {
+        style: { color: routeColors[index], weight: 4, opacity: 0.72 },
+      }).addTo(map);
+      layer.bindPopup(
+        `<b>${route.name}</b><br>${route.distanceKm} km · ↑ ${route.climbM} m<br><small>候选轨迹，权限复核中</small>`,
+      );
+      overviewLayers.set(route.id, layer);
+    }
+    button.addEventListener("click", () => {
+      const layer =
+        route.id === ROUTE_ID
+          ? routeFeature && L.geoJSON(routeFeature)
+          : overviewLayers.get(route.id);
+      if (layer) map.fitBounds(layer.getBounds(), { padding: [34, 34] });
+      if (route.id !== ROUTE_ID) overviewLayers.get(route.id)?.openPopup();
+      setRoutesBrowser(false);
+      setSheet(false);
+    });
+  }
+  document
+    .querySelectorAll(".overview-filters select")
+    .forEach((select) =>
+      select.addEventListener("change", applyOverviewFilters),
+    );
+  return allBounds;
+}
 
 function safeUrl(url) {
   return encodeURI(url).replaceAll('"', "%22");
@@ -334,4 +421,12 @@ window.addEventListener("online", () => {
 window.addEventListener("offline", () => {
   document.querySelector("#network-warning").hidden = false;
 });
-loadRoute();
+Promise.all([loadRoute(), loadOverview()])
+  .then(([, bounds]) =>
+    map.fitBounds(bounds, {
+      padding: window.innerWidth < 761 ? [28, 90] : [50, 50],
+    }),
+  )
+  .catch(() => {
+    document.querySelector("#network-warning").hidden = false;
+  });

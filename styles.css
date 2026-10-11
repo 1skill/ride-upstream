@@ -326,6 +326,123 @@ body.admin-mode .admin-only {
   box-shadow: 0 6px 20px #13272024;
   display: flex;
 }
+.routes-open {
+  position: absolute;
+  z-index: 510;
+  top: 16px;
+  left: 188px;
+  min-height: 38px;
+  padding: 7px 13px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--orange);
+  color: #fff;
+  box-shadow: 0 6px 20px #13272024;
+  font-size: 11px;
+  font-weight: 850;
+}
+.routes-open b {
+  margin-left: 5px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #fff3;
+}
+.routes-browser {
+  position: absolute;
+  z-index: 750;
+  top: 64px;
+  left: 16px;
+  width: min(360px, calc(100% - 32px));
+  max-height: calc(100% - 82px);
+  overflow: auto;
+  padding: 19px;
+  border: 1px solid #ffffff80;
+  border-radius: 17px;
+  background: #fffffff2;
+  box-shadow: 0 18px 55px #102a2338;
+  backdrop-filter: blur(18px);
+  transform: translateX(calc(-100% - 34px));
+  transition: transform 0.25s ease;
+}
+.routes-browser.open {
+  transform: translateX(0);
+}
+.browser-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.browser-head h2 {
+  margin: 0;
+}
+.browser-head button {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--mist);
+  font-size: 21px;
+}
+.overview-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 18px 0 10px;
+}
+.overview-filters label {
+  display: grid;
+  gap: 5px;
+  color: #687872;
+  font-size: 9px;
+  font-weight: 850;
+}
+.overview-filters select {
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fff;
+  padding: 0 9px;
+  color: var(--ink);
+  font-size: 11px;
+}
+.candidate-note {
+  margin: 12px 0;
+  color: #6a7873;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.overview-list {
+  display: grid;
+  gap: 7px;
+}
+.overview-route {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: #fff;
+  text-align: left;
+}
+.overview-route[hidden] {
+  display: none;
+}
+.overview-route strong,
+.overview-route span {
+  display: block;
+}
+.overview-route strong {
+  margin-bottom: 5px;
+  color: var(--ink);
+  font-size: 12px;
+}
+.overview-route span {
+  color: #66756f;
+  font-size: 10px;
+}
+.overview-route.verified {
+  border-color: #7cb99f;
+  background: #eff8f2;
+}
 .map-toolbar button {
   border: 0;
   background: transparent;
@@ -592,6 +709,19 @@ body.admin-mode .delete-photo {
   .map-toolbar {
     top: 12px;
     left: 12px;
+  }
+  .routes-open {
+    top: 61px;
+    left: 12px;
+  }
+  .routes-browser {
+    inset: 106px 8px auto;
+    width: auto;
+    max-height: calc(100% - 122px);
+    transform: translateY(calc(-100% - 120px));
+  }
+  .routes-browser.open {
+    transform: translateY(0);
   }
   .fullscreen-button {
     top: 12px;
