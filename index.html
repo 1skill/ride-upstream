@@ -3,68 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#17382f" />
-  <meta name="description" content="从 20020 Rodrigues Ave 出发并回家的 Cupertino 骑行环线。" />
-  <title>Rodrigues Rides</title>
+  <meta name="theme-color" content="#0c362e" />
+  <meta name="description" content="湾区低车流风景骑行路线：Cupertino、南湾、半岛、Santa Cruz 与东湾。" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><circle cx=%2232%22 cy=%2232%22 r=%2230%22 fill=%22%230c362e%22/><path d=%22M18 40l9-19 7 19 8-15 6 15%22 fill=%22none%22 stroke=%22%23f06a3a%22 stroke-width=%226%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>" />
+  <title>Bay Rides · 湾区骑行路线</title>
   <link rel="preconnect" href="https://unpkg.com" crossorigin />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <link rel="stylesheet" href="styles-v2.css" />
-  <link rel="stylesheet" href="styles-v3.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="#route-regnart"><span>↗</span> Rodrigues Rides</a>
-    <div class="top-actions" aria-label="路线筛选">
-      <button class="filter active" type="button" data-filter="all" aria-pressed="true">全部</button>
-      <button class="filter" type="button" data-filter="quiet" aria-pressed="false">少车</button>
-      <button class="filter" type="button" data-filter="scenic" aria-pressed="false">风景</button>
+  <header class="hero">
+    <nav class="nav"><a class="brand" href="#top" aria-label="Bay Rides 首页"><span>↗</span> BAY RIDES</a><button id="admin-open" class="admin-open" type="button">管理</button></nav>
+    <div id="top" class="hero-copy">
+      <p class="eyebrow">San Francisco Bay Area · road-level routes</p>
+      <h1>从下班后的一圈，<br />到一整天的海岸与山路。</h1>
+      <p class="hero-intro">12 条经过真实道路与骑行路径规划的路线。先看清起点、里程、爬升与路况，再决定今天骑多远。</p>
+      <div class="hero-stats"><span><b>5</b> 个区域</span><span><b>7–95</b> km</span><span><b>GPX</b> 随时下载</span></div>
     </div>
   </header>
-  <div class="filter-status" role="status" aria-live="polite">全部 · 4 条路线</div>
-  <main class="route-deck" aria-label="骑行路线卡片">
-    <article id="route-regnart" class="route-card" data-route="regnart" data-tags="quiet scenic">
-      <div class="card-head"><div><p class="kicker">01 · 溪边 / 公园 / 平路</p><h1>Regnart Creek 环线</h1></div><div class="distance">9 <small>km</small></div></div>
-      <div class="metrics"><span>35–45 分钟</span><span>轻松</span><span>机动车少</span></div>
-      <div class="map" id="map-regnart" aria-label="Regnart Creek 路线地图"></div>
-      <p class="summary">Civic Center → Regnart Creek Trail → Wilson Park → Creekside Park → McClellan → 回家</p>
-      <div class="actions"><a class="map-button apple" data-provider="apple" data-route="regnart">Apple 地图</a><a class="map-button google" data-provider="google" data-route="regnart">Google 地图</a><label class="photo-button">＋ 批量照片<input class="photo-input" type="file" accept="image/*" multiple data-route="regnart" /></label></div>
-      <p class="photo-status" aria-live="polite"></p>
-    </article>
-    <article id="route-blackberry" class="route-card" data-route="blackberry" data-tags="quiet scenic">
-      <div class="card-head"><div><p class="kicker">02 · 树荫 / 溪流 / 自然保护区</p><h2>Blackberry Farm 自然线</h2></div><div class="distance">11 <small>km</small></div></div>
-      <div class="metrics"><span>45–55 分钟</span><span>轻松</span><span>车最少</span></div>
-      <div class="map" id="map-blackberry" aria-label="Blackberry Farm 路线地图"></div>
-      <p class="summary">McClellan 隔离车道 → McClellan Ranch → Stevens Creek Trail → Blackberry Farm → 回家</p>
-      <p class="notice">Nature Trail 的短土路禁止骑车，请留在允许骑行的主步道。</p>
-      <div class="actions"><a class="map-button apple" data-provider="apple" data-route="blackberry">Apple 地图</a><a class="map-button google" data-provider="google" data-route="blackberry">Google 地图</a><label class="photo-button">＋ 批量照片<input class="photo-input" type="file" accept="image/*" multiple data-route="blackberry" /></label></div>
-      <p class="photo-status" aria-live="polite"></p>
-    </article>
-    <article id="route-apple" class="route-card" data-route="apple" data-tags="scenic">
-      <div class="card-head"><div><p class="kicker">03 · Trail / Apple Park / 建筑</p><h2>Apple Park 环线</h2></div><div class="distance">约 7 <small>km</small></div></div>
-      <div class="metrics"><span>15–25 分钟</span><span>轻松</span><span>部分有车</span></div>
-      <div class="map" id="map-apple" aria-label="Apple Park 路线地图"></div>
-      <p class="summary">Wilson Park → Creekside Park → Apple Park Visitor Center → Portal Park → 回家</p>
-      <p class="notice">尽量避开工作日 Apple 上下班时间；Tantau 与 Pruneridge 附近车流稍多。</p>
-      <div class="actions"><a class="map-button apple" data-provider="apple" data-route="apple">Apple 地图</a><a class="map-button google" data-provider="google" data-route="apple">Google 地图</a><label class="photo-button">＋ 批量照片<input class="photo-input" type="file" accept="image/*" multiple data-route="apple" /></label></div>
-      <p class="photo-status" aria-live="polite"></p>
-    </article>
-    <article id="route-mary" class="route-card" data-route="mary" data-tags="quiet">
-      <div class="card-head"><div><p class="kicker">04 · 公园 / 校园 / 自行车桥</p><h2>Lawson–Mary Avenue 环线</h2></div><div class="distance">10 <small>km</small></div></div>
-      <div class="metrics"><span>45–55 分钟</span><span>轻松</span><span>住宅区为主</span></div>
-      <div class="map" id="map-mary" aria-label="Lawson–Mary Avenue 路线地图"></div>
-      <p class="summary">Memorial Park → Lawson Bikeway → Mary Avenue Bridge 南端 → 回家</p>
-      <p class="notice">完整骑过 Mary Avenue Bridge 时，整圈约 13–14 公里。</p>
-      <div class="actions"><a class="map-button apple" data-provider="apple" data-route="mary">Apple 地图</a><a class="map-button google" data-provider="google" data-route="mary">Google 地图</a><label class="photo-button">＋ 批量照片<input class="photo-input" type="file" accept="image/*" multiple data-route="mary" /></label></div>
-      <p class="photo-status" aria-live="polite"></p>
-    </article>
+
+  <main>
+    <section class="filter-panel" aria-labelledby="filter-heading">
+      <div><p class="eyebrow dark">ROUTE FINDER</p><h2 id="filter-heading">找一条今天想骑的路</h2></div>
+      <div class="filter-grid">
+        <label>区域<select id="area-filter"><option value="all">全部区域</option><option value="cupertino">Cupertino</option><option value="south-bay">南湾</option><option value="peninsula">半岛</option><option value="santa-cruz">Santa Cruz</option><option value="east-bay">东湾</option></select></label>
+        <label>长度<select id="length-filter"><option value="all">全部长度</option><option value="daily">日常 · &lt; 20 km</option><option value="medium">中距离 · 20–49 km</option><option value="long">长途 · 50–100 km</option></select></label>
+        <label>难度<select id="difficulty-filter"><option value="all">全部难度</option><option value="easy">轻松</option><option value="moderate">适中</option><option value="hard">挑战</option></select></label>
+      </div>
+      <p id="result-count" class="result-count" aria-live="polite"></p>
+    </section>
+
+    <section id="route-list" class="route-list" aria-label="骑行路线"></section>
   </main>
-  <dialog class="photo-lightbox" aria-label="骑行照片大图">
-    <button class="lightbox-close" type="button" aria-label="关闭大图">×</button>
-    <img alt="骑行照片大图" />
-    <p></p>
+
+  <dialog id="photo-dialog" class="photo-dialog" aria-label="骑行照片">
+    <button class="dialog-close" type="button" aria-label="关闭">×</button>
+    <img alt="骑行照片大图" /><div class="photo-dialog-meta"><p></p><button class="delete-photo" type="button">删除这张照片</button></div>
   </dialog>
+
+  <dialog id="admin-dialog" class="admin-dialog" aria-labelledby="admin-title">
+    <button class="dialog-close" type="button" aria-label="关闭">×</button>
+    <form id="admin-form">
+      <p class="eyebrow dark">OWNER ACCESS</p><h2 id="admin-title">照片管理</h2>
+      <p>路线公开浏览；只有管理员可以上传或删除照片。密码只保存在本次浏览器标签页。</p>
+      <label>用户名<input name="username" value="ride" autocomplete="username" required /></label>
+      <label>密码<input name="password" type="password" autocomplete="current-password" required /></label>
+      <button type="submit">进入管理模式</button><p id="admin-status" role="status"></p>
+    </form>
+  </dialog>
+
+  <template id="route-template">
+    <article class="route-card">
+      <div class="route-copy">
+        <div class="route-index"></div><div class="route-heading"><p class="route-place"></p><h2></h2><p class="route-summary"></p></div>
+        <div class="metrics"><span><b class="metric-distance"></b> km<small>里程</small></span><span><b class="metric-climb"></b> m<small>累计爬升</small></span><span><b class="metric-time"></b><small>预计骑行</small></span><span><b class="metric-level"></b><small>难度</small></span></div>
+        <div class="route-notes"><p class="start-note"></p><p class="surface-note"></p></div>
+        <div class="actions"><a class="drive-link secondary" target="_blank" rel="noopener">开车到起点</a><a class="apple-link" target="_blank" rel="noopener">Apple Maps 骑行</a><a class="google-link" target="_blank" rel="noopener">Google Maps 骑行</a><button class="gpx-button secondary" type="button">下载 GPX</button><label class="photo-button admin-only">＋ 批量照片<input class="photo-input" type="file" accept="image/*" multiple /></label></div>
+        <p class="photo-status" aria-live="polite"></p>
+      </div>
+      <div class="map-wrap"><div class="map"></div><div class="map-legend"><span><i></i> 骑行轨迹</span><span>➤ 行进方向</span></div></div>
+    </article>
+  </template>
+
+  <footer><span>Bay Rides</span><p>路线会随施工、天气和道路政策变化。出发前请核对封路信息，遵守现场标识。</p><p>Map data © OpenStreetMap contributors · Bicycle routing by Valhalla</p></footer>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.js"></script>
   <script src="https://unpkg.com/exifr@7.1.3/dist/lite.umd.js"></script>
-  <script src="app-v6.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
