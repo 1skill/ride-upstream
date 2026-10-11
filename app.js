@@ -522,6 +522,18 @@ function authHeader(username, password) {
   return `Basic ${btoa(unescape(encodeURIComponent(`${username}:${password}`)))}`;
 }
 const adminDialog = document.querySelector("#admin-dialog");
+function resetMobileViewport() {
+  const viewport = document.querySelector('meta[name="viewport"]');
+  if (!viewport) return;
+  const normal = "width=device-width, initial-scale=1, viewport-fit=cover";
+  document.activeElement?.blur();
+  viewport.setAttribute("content", `${normal}, maximum-scale=1`);
+  window.scrollTo(0, 0);
+  setTimeout(() => {
+    viewport.setAttribute("content", normal);
+    map.invalidateSize();
+  }, 220);
+}
 function setAdminMode(active) {
   document.body.classList.toggle("admin-mode", active);
   document.querySelector("#admin-open").textContent = active
@@ -535,6 +547,7 @@ document
 adminDialog
   .querySelector(".dialog-close")
   .addEventListener("click", () => adminDialog.close());
+adminDialog.addEventListener("close", resetMobileViewport);
 document
   .querySelector("#admin-form")
   .addEventListener("submit", async (event) => {
