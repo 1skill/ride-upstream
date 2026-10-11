@@ -9,17 +9,22 @@ const map = L.map("map", { zoomControl: false, preferCanvas: true });
 L.control.zoom({ position: "bottomright" }).addTo(map);
 
 const baseLayers = {
-  outdoor: L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
-    maxZoom: 17,
-    attribution: "Map © OpenStreetMap · SRTM | OpenTopoMap",
-  }),
+  outdoor: L.tileLayer(
+    "https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png",
+    {
+      maxZoom: 20,
+      detectRetina: true,
+      attribution: "© OpenStreetMap contributors · CyclOSM",
+    },
+  ),
   street: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
+    detectRetina: true,
     attribution: "© OpenStreetMap contributors",
   }),
   satellite: L.tileLayer(
     "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    { maxZoom: 19, attribution: "Tiles © Esri" },
+    { maxZoom: 19, detectRetina: true, attribution: "Tiles © Esri" },
   ),
 };
 let activeLayer = baseLayers.outdoor.addTo(map);

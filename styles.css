@@ -548,29 +548,37 @@ body.admin-mode .delete-photo {
     border-radius: 20px 20px 0 0;
     padding: 25px 19px 55px;
     box-shadow: 0 -10px 30px #102a2326;
-    transition: transform 0.32s ease;
-    transform: translateY(0);
+    transition: top 0.28s ease;
     overscroll-behavior: contain;
   }
   .sheet-close {
-    display: block;
-    position: absolute;
-    inset: 0 0 auto;
-    width: 100%;
-    height: 32px;
-    border: 0;
-    background: transparent;
+    display: flex;
+    position: sticky;
+    z-index: 10;
+    top: -18px;
+    width: max-content;
+    min-height: 38px;
+    margin: -18px 0 -20px auto;
+    padding: 8px 12px;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ink);
+    box-shadow: 0 4px 14px #102a231c;
+    font-size: 11px;
   }
   .sheet-close span {
-    display: block;
-    width: 42px;
-    height: 4px;
-    margin: auto;
-    border-radius: 4px;
-    background: #cad4ce;
+    width: 8px;
+    height: 8px;
+    border-left: 2px solid var(--forest);
+    border-bottom: 2px solid var(--forest);
+    transform: rotate(-45deg);
   }
   .route-panel.expanded {
-    transform: translateY(calc(-100% + 132px));
+    top: 64px;
+    height: calc(100% - 64px);
   }
   .panel-head {
     padding-top: 30px;
