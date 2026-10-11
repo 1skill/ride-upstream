@@ -52,6 +52,10 @@ document.querySelector("#apple-drive").href =
   `https://maps.apple.com/?daddr=${driveDestination}&dirflg=d`;
 document.querySelector("#google-drive").href =
   `https://www.google.com/maps/dir/?api=1&destination=${driveDestination}&travelmode=driving`;
+document.querySelector("#mobile-apple-drive").href =
+  document.querySelector("#apple-drive").href;
+document.querySelector("#mobile-google-drive").href =
+  document.querySelector("#google-drive").href;
 
 function markerIcon(type) {
   const html =
@@ -149,6 +153,7 @@ const panel = document.querySelector(".route-panel");
 const sheetToggle = document.querySelector("#sheet-toggle");
 function setSheet(expanded) {
   panel.classList.toggle("expanded", expanded);
+  document.querySelector(".map-stage").inert = expanded;
   sheetToggle.setAttribute("aria-expanded", String(expanded));
   setTimeout(() => map.invalidateSize(), 350);
 }
@@ -177,6 +182,36 @@ document
 document
   .querySelector("#routes-close")
   .addEventListener("click", () => setRoutesBrowser(false));
+document
+  .querySelector("#mobile-filter-open")
+  .addEventListener("click", () => setRoutesBrowser(true));
+
+function setMobileMode(mode) {
+  if (mode === "ride" && selectedRouteId !== ROUTE_ID) return;
+  document.body.classList.toggle("ride-mode", mode === "ride");
+  document
+    .querySelectorAll("[data-mobile-mode]")
+    .forEach((button) =>
+      button.classList.toggle("active", button.dataset.mobileMode === mode),
+    );
+  if (mode === "ride") {
+    overviewLayers.forEach((layer, id) => {
+      if (id !== ROUTE_ID && map.hasLayer(layer)) map.removeLayer(layer);
+    });
+    if (mainRouteLayer)
+      map.fitBounds(mainRouteLayer.getBounds(), { padding: [54, 72] });
+  } else {
+    applyOverviewFilters();
+  }
+  setTimeout(() => map.invalidateSize(), 80);
+}
+document
+  .querySelectorAll("[data-mobile-mode]")
+  .forEach((button) =>
+    button.addEventListener("click", () =>
+      setMobileMode(button.dataset.mobileMode),
+    ),
+  );
 
 function applyOverviewFilters() {
   const area = document.querySelector("#overview-area").value;
@@ -207,7 +242,9 @@ async function loadOverview() {
   auditedRoutes = audit.routes;
   document.querySelector("#routes-open b").textContent = auditedRoutes.length;
   const list = document.querySelector("#overview-list");
+  const carousel = document.querySelector("#mobile-route-carousel");
   list.replaceChildren();
+  carousel.replaceChildren();
   const allBounds = L.latLngBounds();
   const routeData = await Promise.all(
     auditedRoutes.map(async (route) => ({
@@ -226,6 +263,11 @@ async function loadOverview() {
     button.dataset.overviewRoute = route.id;
     button.innerHTML = `<strong>${route.name}</strong><span>${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m · ${verified ? "地图已核验" : "候选待核验"}</span>`;
     list.append(button);
+    const card = document.createElement("article");
+    card.className = `mobile-route-card${verified ? " verified" : ""}`;
+    card.dataset.carouselRoute = route.id;
+    card.innerHTML = `<button type="button" aria-label="选择 ${route.name}"><span class="route-card-status">${verified ? "已核验" : "候选"}</span><strong>${route.name}</strong><span>${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m</span><small>${verified ? "可查看完整轨迹与 GPX" : "道路权限复核中"}</small></button>`;
+    carousel.append(card);
     allBounds.extend(L.geoJSON(data).getBounds());
     if (route.id === ROUTE_ID) overviewLayers.set(route.id, mainRouteLayer);
     if (route.id !== ROUTE_ID) {
@@ -237,7 +279,7 @@ async function loadOverview() {
       );
       overviewLayers.set(route.id, layer);
     }
-    button.addEventListener("click", () => {
+    const selectRoute = () => {
       selectedRouteId = route.id;
       const layer =
         route.id === ROUTE_ID
@@ -245,6 +287,7 @@ async function loadOverview() {
           : overviewLayers.get(route.id);
       if (layer) map.fitBounds(layer.getBounds(), { padding: [34, 34] });
       if (route.id !== ROUTE_ID) overviewLayers.get(route.id)?.openPopup();
+      else map.closePopup();
       overviewLayers.forEach((item, id) =>
         item.setStyle({
           weight: id === route.id ? 7 : 3,
@@ -257,10 +300,29 @@ async function loadOverview() {
       document.querySelector("#route-legend-label").textContent = verified
         ? "完整骑行轨迹"
         : "候选轨迹";
+      document
+        .querySelectorAll(".mobile-route-card")
+        .forEach((item) =>
+          item.classList.toggle(
+            "selected",
+            item.dataset.carouselRoute === route.id,
+          ),
+        );
+      document
+        .querySelector('[data-mobile-mode="ride"]')
+        .toggleAttribute("disabled", !verified);
       setRoutesBrowser(false);
       setSheet(false);
+    };
+    button.addEventListener("click", selectRoute);
+    card.querySelector("button").addEventListener("click", () => {
+      if (selectedRouteId === route.id && verified) setSheet(true);
+      else selectRoute();
     });
   }
+  document
+    .querySelector('[data-carousel-route="blackberry"]')
+    ?.classList.add("selected");
   document
     .querySelectorAll(".overview-filters select")
     .forEach((select) =>

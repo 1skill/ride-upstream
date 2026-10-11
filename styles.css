@@ -315,6 +315,13 @@ body.admin-mode .admin-only {
   height: 100%;
   width: 100%;
 }
+.mobile-mode-switch,
+.mobile-filter-open,
+.mobile-route-carousel,
+.ride-action-bar,
+.ride-route-summary {
+  display: none;
+}
 .map-stage.pseudo-fullscreen {
   position: fixed;
   z-index: 4000;
@@ -698,6 +705,8 @@ body.admin-mode .delete-photo {
     box-shadow: 0 -10px 30px #102a2326;
     transition: top 0.28s ease;
     overscroll-behavior: contain;
+    visibility: hidden;
+    pointer-events: none;
   }
   .sheet-close {
     display: flex;
@@ -728,6 +737,8 @@ body.admin-mode .delete-photo {
     z-index: 1200;
     top: 64px;
     height: calc(100% - 64px);
+    visibility: visible;
+    pointer-events: auto;
   }
   .panel-head {
     padding-top: 30px;
@@ -739,12 +750,66 @@ body.admin-mode .delete-photo {
     font-size: 13px;
   }
   .map-toolbar {
-    top: 12px;
+    top: 68px;
     left: 12px;
   }
   .routes-open {
-    top: 61px;
-    left: 12px;
+    display: none;
+  }
+  .mobile-mode-switch {
+    display: grid;
+    position: absolute;
+    z-index: 920;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    height: 48px;
+    grid-template-columns: 1fr 1fr;
+    padding: 4px;
+    border: 1px solid #d9e0db;
+    border-radius: 999px;
+    background: #fffffff2;
+    box-shadow: 0 5px 20px #102a231c;
+    backdrop-filter: blur(14px);
+  }
+  .mobile-mode-switch button {
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--forest);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 850;
+  }
+  .mobile-mode-switch button i {
+    margin-right: 7px;
+    font-size: 18px;
+    vertical-align: -2px;
+  }
+  .mobile-mode-switch button.active {
+    background: var(--forest);
+    color: #fff;
+  }
+  .mobile-mode-switch button:disabled {
+    opacity: 0.38;
+  }
+  .mobile-filter-open {
+    display: flex;
+    position: absolute;
+    z-index: 910;
+    top: 68px;
+    right: 58px;
+    min-height: 38px;
+    padding: 0 13px;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--orange);
+    color: #fff;
+    box-shadow: 0 5px 18px #102a2329;
+    font-size: 11px;
+    font-weight: 850;
   }
   .routes-browser {
     z-index: 1100;
@@ -753,18 +818,148 @@ body.admin-mode .delete-photo {
     max-height: none;
   }
   .fullscreen-button {
-    top: 12px;
+    top: 68px;
     right: 12px;
   }
   .fullscreen-button span {
     display: none;
   }
   .map-legend {
-    bottom: 134px;
+    bottom: 142px;
     left: 12px;
   }
-  .sheet-toggle {
+  .mobile-route-carousel {
+    display: flex;
+    position: absolute;
+    z-index: 900;
+    right: 0;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    left: 0;
+    gap: 10px;
+    padding: 4px 12px 2px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .mobile-route-carousel::-webkit-scrollbar {
+    display: none;
+  }
+  .mobile-route-card {
+    flex: 0 0 min(80vw, 310px);
+    height: 124px;
+    scroll-snap-align: center;
+  }
+  .mobile-route-card button {
     display: grid;
+    width: 100%;
+    height: 100%;
+    padding: 15px 16px;
+    grid-template-columns: 1fr auto;
+    align-content: center;
+    gap: 5px 10px;
+    border: 2px solid transparent;
+    border-radius: 19px;
+    background: #fffffff7;
+    color: var(--ink);
+    text-align: left;
+    box-shadow: 0 8px 26px #102a2328;
+  }
+  .mobile-route-card.selected button {
+    border-color: var(--orange);
+  }
+  .mobile-route-card strong {
+    grid-column: 1 / -1;
+    overflow: hidden;
+    font-size: 16px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .mobile-route-card span:not(.route-card-status),
+  .mobile-route-card small {
+    color: #66756e;
+    font-size: 11px;
+  }
+  .mobile-route-card small {
+    grid-column: 1 / -1;
+  }
+  .route-card-status {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    padding: 4px 7px;
+    border-radius: 999px;
+    background: #ecefeb;
+    color: #68756f;
+    font-size: 10px;
+    font-weight: 800;
+  }
+  .mobile-route-card.verified .route-card-status {
+    background: #dff1e7;
+    color: #176a4d;
+  }
+  .ride-action-bar {
+    position: absolute;
+    z-index: 930;
+    right: 8px;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    left: 8px;
+    height: 76px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: 7px;
+    border-radius: 18px;
+    background: #fffffff7;
+    box-shadow: 0 -8px 28px #102a2328;
+  }
+  .ride-action-bar a {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+    border-radius: 13px;
+    background: #eef2ef;
+    color: var(--forest);
+    font-size: 10px;
+    font-weight: 800;
+    text-align: center;
+    text-decoration: none;
+  }
+  .ride-action-bar a:last-child {
+    background: var(--orange);
+    color: #fff;
+  }
+  .ride-action-bar i {
+    font-size: 22px;
+  }
+  .ride-route-summary {
+    position: absolute;
+    z-index: 910;
+    top: 68px;
+    right: 10px;
+    left: 10px;
+    padding: 11px 14px;
+    border-radius: 15px;
+    background: #fffffff2;
+    box-shadow: 0 5px 18px #102a2320;
+    backdrop-filter: blur(14px);
+  }
+  .ride-route-summary strong,
+  .ride-route-summary span {
+    display: block;
+  }
+  .ride-route-summary strong {
+    font-size: 14px;
+  }
+  .ride-route-summary span {
+    margin-top: 3px;
+    color: #67766f;
+    font-size: 11px;
+  }
+  .sheet-toggle {
+    display: none;
     position: absolute;
     z-index: 900;
     left: 8px;
@@ -804,6 +999,9 @@ body.admin-mode .delete-photo {
     display: none;
   }
   body.routes-browser-open .sheet-toggle,
+  body.routes-browser-open .mobile-route-carousel,
+  body.routes-browser-open .mobile-mode-switch,
+  body.routes-browser-open .mobile-filter-open,
   body.routes-browser-open .map-toolbar,
   body.routes-browser-open .fullscreen-button,
   body.routes-browser-open .map-legend,
@@ -822,7 +1020,23 @@ body.admin-mode .delete-photo {
     bottom: calc(8px + env(safe-area-inset-bottom));
   }
   .leaflet-bottom {
-    bottom: calc(116px + env(safe-area-inset-bottom));
+    bottom: calc(136px + env(safe-area-inset-bottom));
+  }
+  body.ride-mode .mobile-route-carousel,
+  body.ride-mode .mobile-filter-open,
+  body.ride-mode .map-toolbar,
+  body.ride-mode .fullscreen-button,
+  body.ride-mode .map-legend {
+    display: none;
+  }
+  body.ride-mode .ride-action-bar {
+    display: grid;
+  }
+  body.ride-mode .ride-route-summary {
+    display: block;
+  }
+  body.ride-mode .leaflet-bottom {
+    bottom: calc(88px + env(safe-area-inset-bottom));
   }
   .photo-gallery {
     grid-template-columns: repeat(4, 1fr);

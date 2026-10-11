@@ -27,6 +27,10 @@
       href="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.css"
       crossorigin=""
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css"
+    />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -147,6 +151,26 @@
       </aside>
       <section class="map-stage" aria-label="湾区骑行主地图">
         <div id="map" aria-label="Blackberry Farm 完整骑行轨迹"></div>
+        <nav class="mobile-mode-switch" aria-label="手机浏览模式">
+          <button class="active" data-mobile-mode="explore" type="button">
+            <i class="ri-compass-3-line" aria-hidden="true"></i>探索
+          </button>
+          <button data-mobile-mode="ride" type="button">
+            <i class="ri-riding-line" aria-hidden="true"></i>骑行
+          </button>
+        </nav>
+        <div class="ride-route-summary">
+          <strong>Blackberry Farm 溪谷自然线</strong>
+          <span>3.8 km · ↑ 49 m · 地图已核验</span>
+        </div>
+        <button
+          id="mobile-filter-open"
+          class="mobile-filter-open"
+          type="button"
+        >
+          <i class="ri-equalizer-2-line" aria-hidden="true"></i>
+          筛选路线
+        </button>
         <button
           id="routes-open"
           class="routes-open"
@@ -220,6 +244,25 @@
         <div id="network-warning" class="network-warning" hidden>
           地图底图暂时无法载入。轨迹和 GPX 仍可使用，请检查网络后重试。
         </div>
+        <div
+          id="mobile-route-carousel"
+          class="mobile-route-carousel"
+          aria-label="路线卡片"
+        ></div>
+        <nav class="ride-action-bar" aria-label="骑行操作">
+          <a id="mobile-apple-drive" target="_blank" rel="noopener">
+            <i class="ri-parking-box-line" aria-hidden="true"></i>
+            Apple 停车
+          </a>
+          <a id="mobile-google-drive" target="_blank" rel="noopener">
+            <i class="ri-car-line" aria-hidden="true"></i>
+            Google 停车
+          </a>
+          <a href="blackberry-v2.gpx" download>
+            <i class="ri-download-cloud-2-line" aria-hidden="true"></i>
+            下载 GPX
+          </a>
+        </nav>
         <button
           id="sheet-toggle"
           class="sheet-toggle"
