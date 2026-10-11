@@ -33,6 +33,8 @@
 1. Initial implementation exposed the collapsed legacy detail panel beneath the route carousel. Fixed by making the panel inert and invisible until explicitly expanded.
 2. Ride mode initially lacked a route identity header. Fixed with the compact route name, distance, climb, and verification summary.
 3. Switching from a candidate back to Blackberry left the candidate popup visible. Fixed by closing the active popup when selecting the verified route.
+4. Explore initially exited Ride mode without restoring the full Bay Area overview. Fixed by resetting filters, route styles, decorators, popup state, and bounds.
+5. Direction decorators were not rendered for GeoJSON layer groups. Fixed by creating decorators for each underlying line; verified in `output/mobile-v23/11-candidate-arrows-fixed.png` and `output/mobile-v23/12-blackberry-arrows.png`.
 
 ## Follow-up polish
 

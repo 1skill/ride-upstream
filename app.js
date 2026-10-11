@@ -29,12 +29,14 @@ let activeLayer = baseLayers.outdoor.addTo(map);
 const photoLayer = L.layerGroup().addTo(map);
 let routeFeature;
 let mainRouteLayer;
+let mainRouteDecorator;
 let adminAuth = sessionStorage.getItem("ride-admin") || "";
 let selectedPhoto;
 let pendingFile;
 let pinHandler;
 let selectedRouteId = ROUTE_ID;
 const overviewLayers = new Map();
+const overviewDecorators = new Map();
 let auditedRoutes = [];
 const routeColors = [
   "#ed6943",
@@ -70,6 +72,36 @@ function markerIcon(type) {
   });
 }
 
+function directionDecorator(layer, color) {
+  if (!L.polylineDecorator) return null;
+  const decorators = L.layerGroup();
+  const addArrows = (line) =>
+    decorators.addLayer(
+      L.polylineDecorator(line, {
+        patterns: [
+          {
+            offset: "8%",
+            repeat: "14%",
+            symbol: L.Symbol.arrowHead({
+              pixelSize: 10,
+              polygon: true,
+              pathOptions: {
+                color: "#fff",
+                fillColor: color,
+                fillOpacity: 1,
+                opacity: 1,
+                weight: 1.5,
+              },
+            }),
+          },
+        ],
+      }),
+    );
+  if (layer.eachLayer) layer.eachLayer(addArrows);
+  else addArrows(layer);
+  return decorators;
+}
+
 async function loadRoute() {
   try {
     const response = await fetch("blackberry-v2.geojson");
@@ -79,26 +111,8 @@ async function loadRoute() {
       style: { color: "#ed6943", weight: 7, opacity: 0.96 },
     }).addTo(map);
     mainRouteLayer = line;
-    if (L.polylineDecorator) {
-      L.polylineDecorator(line, {
-        patterns: [
-          {
-            offset: "6%",
-            repeat: "10%",
-            symbol: L.Symbol.arrowHead({
-              pixelSize: 10,
-              polygon: true,
-              pathOptions: {
-                color: "#fff",
-                fillColor: "#123c33",
-                fillOpacity: 1,
-                weight: 1,
-              },
-            }),
-          },
-        ],
-      }).addTo(map);
-    }
+    mainRouteDecorator = directionDecorator(line, "#123c33");
+    mainRouteDecorator?.addTo(map);
     L.marker([START.lat, START.lon], {
       icon: markerIcon("start"),
       zIndexOffset: 500,
@@ -198,9 +212,22 @@ function setMobileMode(mode) {
     overviewLayers.forEach((layer, id) => {
       if (id !== ROUTE_ID && map.hasLayer(layer)) map.removeLayer(layer);
     });
+    overviewDecorators.forEach((layer, id) => {
+      if (id !== ROUTE_ID && map.hasLayer(layer)) map.removeLayer(layer);
+    });
     if (mainRouteLayer)
       map.fitBounds(mainRouteLayer.getBounds(), { padding: [54, 72] });
   } else {
+    document.querySelector("#overview-area").value = "all";
+    document.querySelector("#overview-distance").value = "all";
+    overviewLayers.forEach((layer) =>
+      layer.setStyle({ weight: 4, opacity: 0.72 }),
+    );
+    document
+      .querySelectorAll(".mobile-route-card")
+      .forEach((item) => item.classList.remove("selected"));
+    document.querySelector("#route-legend-label").textContent = "全部路线";
+    map.closePopup();
     applyOverviewFilters();
   }
   setTimeout(() => map.invalidateSize(), 80);
@@ -224,9 +251,13 @@ function applyOverviewFilters() {
     document.querySelector(`[data-overview-route="${route.id}"]`).hidden =
       !visible;
     const layer = overviewLayers.get(route.id);
+    const decorator = overviewDecorators.get(route.id);
     if (!layer) return;
     if (visible && !map.hasLayer(layer)) layer.addTo(map);
     if (!visible && map.hasLayer(layer)) map.removeLayer(layer);
+    if (decorator && visible && !map.hasLayer(decorator)) decorator.addTo(map);
+    if (decorator && !visible && map.hasLayer(decorator))
+      map.removeLayer(decorator);
     if (visible) visibleBounds.extend(layer.getBounds());
   });
   if (visibleBounds.isValid())
@@ -269,7 +300,11 @@ async function loadOverview() {
     card.innerHTML = `<button type="button" aria-label="选择 ${route.name}"><span class="route-card-status">${verified ? "已核验" : "候选"}</span><strong>${route.name}</strong><span>${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m</span><small>${verified ? "可查看完整轨迹与 GPX" : "道路权限复核中"}</small></button>`;
     carousel.append(card);
     allBounds.extend(L.geoJSON(data).getBounds());
-    if (route.id === ROUTE_ID) overviewLayers.set(route.id, mainRouteLayer);
+    if (route.id === ROUTE_ID) {
+      overviewLayers.set(route.id, mainRouteLayer);
+      if (mainRouteDecorator)
+        overviewDecorators.set(route.id, mainRouteDecorator);
+    }
     if (route.id !== ROUTE_ID) {
       const layer = L.geoJSON(data, {
         style: { color: routeColors[index], weight: 4, opacity: 0.72 },
@@ -278,6 +313,9 @@ async function loadOverview() {
         `<b>${route.name}</b><br>${route.distanceKm} km · ↑ ${route.climbM} m<br><small>候选轨迹，权限复核中</small>`,
       );
       overviewLayers.set(route.id, layer);
+      const decorator = directionDecorator(layer, routeColors[index]);
+      decorator?.addTo(map);
+      if (decorator) overviewDecorators.set(route.id, decorator);
     }
     const selectRoute = () => {
       selectedRouteId = route.id;
@@ -294,6 +332,10 @@ async function loadOverview() {
           opacity: id === route.id ? 0.96 : 0.2,
         }),
       );
+      overviewDecorators.forEach((item, id) => {
+        if (id === route.id && !map.hasLayer(item)) item.addTo(map);
+        if (id !== route.id && map.hasLayer(item)) map.removeLayer(item);
+      });
       document.querySelector("#sheet-toggle b").textContent = route.name;
       document.querySelector("#sheet-toggle small").textContent =
         `${route.distanceKm} km · ↑ ${route.climbM} m · ${verified ? "点按查看详情" : "候选待核验"}`;
