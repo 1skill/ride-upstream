@@ -315,6 +315,12 @@ body.admin-mode .admin-only {
   height: 100%;
   width: 100%;
 }
+.map-stage.pseudo-fullscreen {
+  position: fixed;
+  z-index: 4000;
+  inset: 0;
+  height: 100dvh;
+}
 .map-toolbar {
   position: absolute;
   z-index: 500;
@@ -363,6 +369,8 @@ body.admin-mode .admin-only {
   backdrop-filter: blur(18px);
   transform: translateX(calc(-100% - 34px));
   transition: transform 0.25s ease;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .routes-browser.open {
   transform: translateX(0);
@@ -414,6 +422,10 @@ body.admin-mode .admin-only {
 .overview-list {
   display: grid;
   gap: 7px;
+}
+.overview-loading {
+  color: #687872;
+  font-size: 11px;
 }
 .overview-route {
   width: 100%;
@@ -639,14 +651,14 @@ body.admin-mode .delete-photo {
     overflow: hidden;
   }
   .topbar {
-    height: 55px;
-    padding: 0 14px;
+    height: calc(55px + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) 14px 0;
   }
   .sample-badge {
     display: none;
   }
   .explorer {
-    height: calc(100dvh - 55px);
+    height: calc(100dvh - 55px - env(safe-area-inset-top));
     display: block;
     position: relative;
   }
@@ -715,9 +727,9 @@ body.admin-mode .delete-photo {
     left: 12px;
   }
   .routes-browser {
-    inset: 106px 8px auto;
+    inset: 8px 8px calc(8px + env(safe-area-inset-bottom));
     width: auto;
-    max-height: calc(100% - 122px);
+    max-height: none;
     transform: translateY(calc(-100% - 120px));
   }
   .routes-browser.open {
@@ -773,6 +785,20 @@ body.admin-mode .delete-photo {
   }
   .route-panel.expanded ~ .map-stage .sheet-toggle {
     display: none;
+  }
+  body.routes-browser-open .sheet-toggle,
+  body.routes-browser-open .map-toolbar,
+  body.routes-browser-open .fullscreen-button,
+  body.routes-browser-open .map-legend,
+  body.routes-browser-open .leaflet-control-zoom {
+    visibility: hidden;
+    pointer-events: none;
+  }
+  body.routes-browser-open .routes-open {
+    visibility: hidden;
+  }
+  .sheet-toggle {
+    bottom: calc(8px + env(safe-area-inset-bottom));
   }
   .photo-gallery {
     grid-template-columns: repeat(4, 1fr);

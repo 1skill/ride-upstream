@@ -7,6 +7,8 @@ const PARKING = {
 const START = { lat: 37.31772, lon: -122.062212 };
 const map = L.map("map", { zoomControl: false, preferCanvas: true });
 L.control.zoom({ position: "bottomright" }).addTo(map);
+L.DomEvent.disableClickPropagation(document.querySelector("#routes-browser"));
+L.DomEvent.disableScrollPropagation(document.querySelector("#routes-browser"));
 
 const baseLayers = {
   outdoor: L.maplibreGL({
@@ -25,10 +27,12 @@ const baseLayers = {
 let activeLayer = baseLayers.outdoor.addTo(map);
 const photoLayer = L.layerGroup().addTo(map);
 let routeFeature;
+let mainRouteLayer;
 let adminAuth = sessionStorage.getItem("ride-admin") || "";
 let selectedPhoto;
 let pendingFile;
 let pinHandler;
+let selectedRouteId = ROUTE_ID;
 const overviewLayers = new Map();
 let auditedRoutes = [];
 const routeColors = [
@@ -69,6 +73,7 @@ async function loadRoute() {
     const line = L.geoJSON(routeFeature, {
       style: { color: "#ed6943", weight: 7, opacity: 0.96 },
     }).addTo(map);
+    mainRouteLayer = line;
     if (L.polylineDecorator) {
       L.polylineDecorator(line, {
         patterns: [
@@ -127,8 +132,15 @@ document.querySelectorAll(".map-toolbar button").forEach((button) =>
 
 document.querySelector("#fullscreen").addEventListener("click", async () => {
   const stage = document.querySelector(".map-stage");
-  if (!document.fullscreenElement) await stage.requestFullscreen?.();
-  else await document.exitFullscreen?.();
+  if (stage.requestFullscreen && !document.fullscreenElement) {
+    await stage
+      .requestFullscreen()
+      .catch(() => stage.classList.toggle("pseudo-fullscreen"));
+  } else if (document.fullscreenElement) {
+    await document.exitFullscreen();
+  } else {
+    stage.classList.toggle("pseudo-fullscreen");
+  }
   setTimeout(() => map.invalidateSize(), 200);
 });
 document.addEventListener("fullscreenchange", () =>
@@ -142,16 +154,21 @@ function setSheet(expanded) {
   sheetToggle.setAttribute("aria-expanded", String(expanded));
   setTimeout(() => map.invalidateSize(), 350);
 }
-sheetToggle.addEventListener("click", () => setSheet(true));
+sheetToggle.addEventListener("click", () => {
+  if (selectedRouteId === ROUTE_ID) setSheet(true);
+  else setRoutesBrowser(true);
+});
 document
   .querySelector("#sheet-close")
   .addEventListener("click", () => setSheet(false));
 
 function setRoutesBrowser(open) {
+  document.body.classList.toggle("routes-browser-open", open);
   document.querySelector("#routes-browser").classList.toggle("open", open);
   document
     .querySelector("#routes-open")
     .setAttribute("aria-expanded", String(open));
+  if (open) setSheet(false);
 }
 document
   .querySelector("#routes-open")
@@ -163,6 +180,7 @@ document
 function applyOverviewFilters() {
   const area = document.querySelector("#overview-area").value;
   const category = document.querySelector("#overview-distance").value;
+  const visibleBounds = L.latLngBounds();
   auditedRoutes.forEach((route) => {
     const visible =
       (area === "all" || route.area === area) &&
@@ -173,7 +191,12 @@ function applyOverviewFilters() {
     if (!layer) return;
     if (visible && !map.hasLayer(layer)) layer.addTo(map);
     if (!visible && map.hasLayer(layer)) map.removeLayer(layer);
+    if (visible) visibleBounds.extend(layer.getBounds());
   });
+  if (visibleBounds.isValid())
+    map.fitBounds(visibleBounds, {
+      padding: window.innerWidth < 761 ? [28, 76] : [50, 50],
+    });
 }
 
 async function loadOverview() {
@@ -183,8 +206,18 @@ async function loadOverview() {
   auditedRoutes = audit.routes;
   document.querySelector("#routes-open b").textContent = auditedRoutes.length;
   const list = document.querySelector("#overview-list");
+  list.replaceChildren();
   const allBounds = L.latLngBounds();
-  for (const [index, route] of auditedRoutes.entries()) {
+  const routeData = await Promise.all(
+    auditedRoutes.map(async (route) => ({
+      route,
+      data: await fetch(route.file).then((response) => {
+        if (!response.ok) throw new Error("route data");
+        return response.json();
+      }),
+    })),
+  );
+  for (const [index, { route, data }] of routeData.entries()) {
     const button = document.createElement("button");
     const verified = route.verification === "map-verified-field-pending";
     button.type = "button";
@@ -192,8 +225,8 @@ async function loadOverview() {
     button.dataset.overviewRoute = route.id;
     button.innerHTML = `<strong>${route.name}</strong><span>${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m · ${verified ? "地图已核验" : "候选待核验"}</span>`;
     list.append(button);
-    const data = await fetch(route.file).then((response) => response.json());
     allBounds.extend(L.geoJSON(data).getBounds());
+    if (route.id === ROUTE_ID) overviewLayers.set(route.id, mainRouteLayer);
     if (route.id !== ROUTE_ID) {
       const layer = L.geoJSON(data, {
         style: { color: routeColors[index], weight: 4, opacity: 0.72 },
@@ -204,12 +237,22 @@ async function loadOverview() {
       overviewLayers.set(route.id, layer);
     }
     button.addEventListener("click", () => {
+      selectedRouteId = route.id;
       const layer =
         route.id === ROUTE_ID
           ? routeFeature && L.geoJSON(routeFeature)
           : overviewLayers.get(route.id);
       if (layer) map.fitBounds(layer.getBounds(), { padding: [34, 34] });
       if (route.id !== ROUTE_ID) overviewLayers.get(route.id)?.openPopup();
+      overviewLayers.forEach((item, id) =>
+        item.setStyle({
+          weight: id === route.id ? 7 : 3,
+          opacity: id === route.id ? 0.96 : 0.2,
+        }),
+      );
+      document.querySelector("#sheet-toggle b").textContent = route.name;
+      document.querySelector("#sheet-toggle small").textContent =
+        `${route.distanceKm} km · ↑ ${route.climbM} m · ${verified ? "点按查看详情" : "候选待核验"}`;
       setRoutesBrowser(false);
       setSheet(false);
     });
@@ -421,8 +464,10 @@ window.addEventListener("online", () => {
 window.addEventListener("offline", () => {
   document.querySelector("#network-warning").hidden = false;
 });
-Promise.all([loadRoute(), loadOverview()])
-  .then(([, bounds]) =>
+window.addEventListener("resize", () => map.invalidateSize());
+loadRoute()
+  .then(() => loadOverview())
+  .then((bounds) =>
     map.fitBounds(bounds, {
       padding: window.innerWidth < 761 ? [28, 90] : [50, 50],
     }),
