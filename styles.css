@@ -319,7 +319,9 @@ body.admin-mode .admin-only {
 .mobile-filter-open,
 .mobile-route-carousel,
 .ride-action-bar,
-.ride-route-summary {
+.ride-route-summary,
+.show-all-routes,
+.locate-me {
   display: none;
 }
 .map-stage.pseudo-fullscreen {
@@ -865,7 +867,25 @@ body.admin-mode .delete-photo {
     text-align: left;
     box-shadow: 0 8px 26px #102a2328;
   }
-  .mobile-route-card.selected button {
+  .mobile-route-card .route-card-details {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+    height: 30px;
+    padding: 0 11px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--forest);
+    color: #fff;
+    box-shadow: none;
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .mobile-route-card {
+    position: relative;
+  }
+  .mobile-route-card.selected .route-card-main {
     border-color: var(--orange);
   }
   .mobile-route-card strong {
@@ -949,6 +969,43 @@ body.admin-mode .delete-photo {
   .ride-route-summary strong,
   .ride-route-summary span {
     display: block;
+  }
+  .show-all-routes,
+  .locate-me {
+    position: absolute;
+    z-index: 915;
+    min-height: 38px;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    border-radius: 999px;
+    background: #fffffff2;
+    color: var(--forest);
+    box-shadow: 0 5px 18px #102a2329;
+    font-size: 11px;
+    font-weight: 850;
+  }
+  .show-all-routes {
+    top: 116px;
+    left: 12px;
+    padding: 0 13px;
+  }
+  .locate-me {
+    right: 12px;
+    bottom: calc(142px + env(safe-area-inset-bottom));
+    width: 42px;
+    justify-content: center;
+  }
+  .locate-me span {
+    display: none;
+  }
+  body.route-focused .show-all-routes,
+  body.ride-mode .show-all-routes,
+  body.ride-mode .locate-me {
+    display: flex;
+  }
+  body.ride-mode .locate-me {
+    bottom: calc(178px + env(safe-area-inset-bottom));
   }
   .ride-route-summary strong {
     font-size: 14px;

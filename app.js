@@ -1,4 +1,19 @@
 const ROUTE_ID = "blackberry";
+const STATE_KEY = "ride-mobile-state-v1";
+const savedState = (() => {
+  try {
+    return JSON.parse(localStorage.getItem(STATE_KEY)) || {};
+  } catch {
+    return {};
+  }
+})();
+function saveState(patch) {
+  let current = {};
+  try {
+    current = JSON.parse(localStorage.getItem(STATE_KEY)) || {};
+  } catch {}
+  localStorage.setItem(STATE_KEY, JSON.stringify({ ...current, ...patch }));
+}
 const PARKING = {
   name: "Blackberry Farm parking",
   lat: 37.3179581,
@@ -34,9 +49,14 @@ let adminAuth = sessionStorage.getItem("ride-admin") || "";
 let selectedPhoto;
 let pendingFile;
 let pinHandler;
-let selectedRouteId = ROUTE_ID;
+let selectedRouteId = null;
+let locationMarker;
+let locationAccuracy;
+let wakeLock;
+let didRestoreState = false;
 const overviewLayers = new Map();
 const overviewDecorators = new Map();
+const routeSelectors = new Map();
 let auditedRoutes = [];
 const routeColors = [
   "#ed6943",
@@ -203,6 +223,7 @@ document
 function setMobileMode(mode) {
   if (mode === "ride" && selectedRouteId !== ROUTE_ID) return;
   document.body.classList.toggle("ride-mode", mode === "ride");
+  saveState({ mode, selectedRouteId });
   document
     .querySelectorAll("[data-mobile-mode]")
     .forEach((button) =>
@@ -218,6 +239,7 @@ function setMobileMode(mode) {
     if (mainRouteLayer)
       map.fitBounds(mainRouteLayer.getBounds(), { padding: [54, 72] });
   } else {
+    document.body.classList.remove("route-focused");
     document.querySelector("#overview-area").value = "all";
     document.querySelector("#overview-distance").value = "all";
     overviewLayers.forEach((layer) =>
@@ -231,7 +253,46 @@ function setMobileMode(mode) {
     applyOverviewFilters();
   }
   setTimeout(() => map.invalidateSize(), 80);
+  if (mode === "ride" && navigator.wakeLock?.request)
+    navigator.wakeLock
+      .request("screen")
+      .then((lock) => (wakeLock = lock))
+      .catch(() => {});
+  if (mode !== "ride" && wakeLock) {
+    wakeLock.release().catch(() => {});
+    wakeLock = null;
+  }
+  syncMobileControlA11y();
 }
+function syncMobileControlA11y() {
+  const focused = document.body.classList.contains("route-focused");
+  const riding = document.body.classList.contains("ride-mode");
+  const showAll = document.querySelector("#show-all-routes");
+  const locate = document.querySelector("#locate-me");
+  showAll.setAttribute("aria-hidden", String(!focused && !riding));
+  showAll.tabIndex = focused || riding ? 0 : -1;
+  locate.setAttribute("aria-hidden", String(!riding));
+  locate.tabIndex = riding ? 0 : -1;
+  document
+    .querySelector(".ride-action-bar")
+    .setAttribute("aria-hidden", String(!riding));
+  document
+    .querySelector(".ride-route-summary")
+    .setAttribute("aria-hidden", String(!riding));
+}
+function showAllRoutes() {
+  selectedRouteId = null;
+  saveState({
+    mode: "explore",
+    selectedRouteId: null,
+    area: "all",
+    category: "all",
+  });
+  setMobileMode("explore");
+}
+document
+  .querySelector("#show-all-routes")
+  .addEventListener("click", showAllRoutes);
 document
   .querySelectorAll("[data-mobile-mode]")
   .forEach((button) =>
@@ -243,6 +304,12 @@ document
 function applyOverviewFilters() {
   const area = document.querySelector("#overview-area").value;
   const category = document.querySelector("#overview-distance").value;
+  saveState({
+    mode: document.body.classList.contains("ride-mode") ? "ride" : "explore",
+    selectedRouteId,
+    area,
+    category,
+  });
   const visibleBounds = L.latLngBounds();
   auditedRoutes.forEach((route) => {
     const visible =
@@ -297,7 +364,7 @@ async function loadOverview() {
     const card = document.createElement("article");
     card.className = `mobile-route-card${verified ? " verified" : ""}`;
     card.dataset.carouselRoute = route.id;
-    card.innerHTML = `<button type="button" aria-label="选择 ${route.name}"><span class="route-card-status">${verified ? "已核验" : "候选"}</span><strong>${route.name}</strong><span>${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m</span><small>${verified ? "可查看完整轨迹与 GPX" : "道路权限复核中"}</small></button>`;
+    card.innerHTML = `<button class="route-card-main" type="button" aria-label="选择 ${route.name}"><span class="route-card-status">${verified ? "已核验" : "候选"}</span><strong>${route.name}</strong><span>${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m</span><small>${verified ? "可查看完整轨迹与 GPX" : "道路权限复核中"}</small></button>${verified ? '<button class="route-card-details" type="button">详情</button>' : ""}`;
     carousel.append(card);
     allBounds.extend(L.geoJSON(data).getBounds());
     if (route.id === ROUTE_ID) {
@@ -319,6 +386,8 @@ async function loadOverview() {
     }
     const selectRoute = () => {
       selectedRouteId = route.id;
+      document.body.classList.add("route-focused");
+      saveState({ selectedRouteId: route.id });
       const layer =
         route.id === ROUTE_ID
           ? routeFeature && L.geoJSON(routeFeature)
@@ -355,21 +424,36 @@ async function loadOverview() {
         .toggleAttribute("disabled", !verified);
       setRoutesBrowser(false);
       setSheet(false);
+      syncMobileControlA11y();
     };
     button.addEventListener("click", selectRoute);
-    card.querySelector("button").addEventListener("click", () => {
-      if (selectedRouteId === route.id && verified) setSheet(true);
-      else selectRoute();
-    });
+    routeSelectors.set(route.id, selectRoute);
+    card
+      .querySelector(".route-card-main")
+      .addEventListener("click", selectRoute);
+    card
+      .querySelector(".route-card-details")
+      ?.addEventListener("click", () => setSheet(true));
   }
-  document
-    .querySelector('[data-carousel-route="blackberry"]')
-    ?.classList.add("selected");
+  syncMobileControlA11y();
   document
     .querySelectorAll(".overview-filters select")
     .forEach((select) =>
       select.addEventListener("change", applyOverviewFilters),
     );
+  if (savedState.area)
+    document.querySelector("#overview-area").value = savedState.area;
+  if (savedState.category)
+    document.querySelector("#overview-distance").value = savedState.category;
+  if (
+    savedState.selectedRouteId &&
+    routeSelectors.has(savedState.selectedRouteId)
+  ) {
+    routeSelectors.get(savedState.selectedRouteId)();
+    didRestoreState = true;
+  }
+  if (savedState.mode === "ride" && selectedRouteId === ROUTE_ID)
+    setMobileMode("ride");
   return allBounds;
 }
 
@@ -572,14 +656,73 @@ window.addEventListener("online", () => {
 window.addEventListener("offline", () => {
   document.querySelector("#network-warning").hidden = false;
 });
+document.querySelector("#locate-me").addEventListener("click", () => {
+  const button = document.querySelector("#locate-me");
+  button.classList.add("locating");
+  button.querySelector("span").textContent = "定位中";
+  map.locate({ enableHighAccuracy: true, setView: true, maxZoom: 17 });
+});
+map.on("locationfound", (event) => {
+  if (!locationMarker)
+    locationMarker = L.circleMarker(event.latlng, {
+      radius: 8,
+      color: "#fff",
+      weight: 3,
+      fillColor: "#2678e8",
+      fillOpacity: 1,
+    }).addTo(map);
+  else locationMarker.setLatLng(event.latlng);
+  if (!locationAccuracy)
+    locationAccuracy = L.circle(event.latlng, {
+      radius: event.accuracy,
+      color: "#2678e8",
+      weight: 1,
+      fillOpacity: 0.08,
+    }).addTo(map);
+  else locationAccuracy.setLatLng(event.latlng).setRadius(event.accuracy);
+  const button = document.querySelector("#locate-me");
+  button.classList.remove("locating");
+  button.querySelector("span").textContent = "我的位置";
+});
+map.on("locationerror", () => {
+  const button = document.querySelector("#locate-me");
+  button.classList.remove("locating");
+  button.querySelector("span").textContent = "定位失败";
+});
+document.addEventListener("visibilitychange", () => {
+  if (
+    document.visibilityState === "visible" &&
+    document.body.classList.contains("ride-mode") &&
+    navigator.wakeLock?.request &&
+    (!wakeLock || wakeLock.released)
+  ) {
+    navigator.wakeLock
+      .request("screen")
+      .then((lock) => (wakeLock = lock))
+      .catch(() => {});
+  }
+});
+map.on("zoomend", () => {
+  const showArrows = map.getZoom() >= 9;
+  const focusedRoute = document.querySelector(".mobile-route-card.selected")
+    ?.dataset.carouselRoute;
+  overviewDecorators.forEach((decorator, id) => {
+    const routeVisible = map.hasLayer(overviewLayers.get(id));
+    const arrowVisible =
+      showArrows && routeVisible && (!focusedRoute || focusedRoute === id);
+    if (arrowVisible && !map.hasLayer(decorator)) decorator.addTo(map);
+    if (!arrowVisible && map.hasLayer(decorator)) map.removeLayer(decorator);
+  });
+});
 window.addEventListener("resize", () => map.invalidateSize());
 loadRoute()
   .then(() => loadOverview())
-  .then((bounds) =>
-    map.fitBounds(bounds, {
-      padding: window.innerWidth < 761 ? [28, 90] : [50, 50],
-    }),
-  )
+  .then((bounds) => {
+    if (!didRestoreState)
+      map.fitBounds(bounds, {
+        padding: window.innerWidth < 761 ? [28, 90] : [50, 50],
+      });
+  })
   .catch(() => {
     document.querySelector("#network-warning").hidden = false;
   });
