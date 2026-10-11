@@ -321,6 +321,18 @@ body.admin-mode .admin-only {
   inset: 0;
   height: 100dvh;
 }
+.map-stage:fullscreen .sheet-toggle,
+.map-stage.pseudo-fullscreen .sheet-toggle {
+  display: none;
+}
+.map-stage:fullscreen .map-legend,
+.map-stage.pseudo-fullscreen .map-legend {
+  bottom: 12px;
+}
+.map-stage:fullscreen .leaflet-bottom,
+.map-stage.pseudo-fullscreen .leaflet-bottom {
+  bottom: 0;
+}
 .map-toolbar {
   position: absolute;
   z-index: 500;
@@ -367,13 +379,20 @@ body.admin-mode .admin-only {
   background: #fffffff2;
   box-shadow: 0 18px 55px #102a2338;
   backdrop-filter: blur(18px);
-  transform: translateX(calc(-100% - 34px));
-  transition: transform 0.25s ease;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    visibility 0s linear 0.2s;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 .routes-browser.open {
-  transform: translateX(0);
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transition-delay: 0s;
 }
 .browser-head {
   display: flex;
@@ -706,6 +725,7 @@ body.admin-mode .delete-photo {
     transform: rotate(-45deg);
   }
   .route-panel.expanded {
+    z-index: 1200;
     top: 64px;
     height: calc(100% - 64px);
   }
@@ -727,13 +747,10 @@ body.admin-mode .delete-photo {
     left: 12px;
   }
   .routes-browser {
+    z-index: 1100;
     inset: 8px 8px calc(8px + env(safe-area-inset-bottom));
     width: auto;
     max-height: none;
-    transform: translateY(calc(-100% - 120px));
-  }
-  .routes-browser.open {
-    transform: translateY(0);
   }
   .fullscreen-button {
     top: 12px;
@@ -743,7 +760,7 @@ body.admin-mode .delete-photo {
     display: none;
   }
   .map-legend {
-    bottom: 87px;
+    bottom: 134px;
     left: 12px;
   }
   .sheet-toggle {
@@ -753,7 +770,7 @@ body.admin-mode .delete-photo {
     left: 8px;
     right: 8px;
     bottom: 8px;
-    height: 116px;
+    height: 104px;
     border: 0;
     border-radius: 20px 20px 14px 14px;
     background: #fff;
@@ -791,6 +808,10 @@ body.admin-mode .delete-photo {
   body.routes-browser-open .fullscreen-button,
   body.routes-browser-open .map-legend,
   body.routes-browser-open .leaflet-control-zoom {
+    visibility: hidden !important;
+    pointer-events: none;
+  }
+  body.routes-browser-open .route-panel {
     visibility: hidden;
     pointer-events: none;
   }
@@ -799,6 +820,9 @@ body.admin-mode .delete-photo {
   }
   .sheet-toggle {
     bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+  .leaflet-bottom {
+    bottom: calc(116px + env(safe-area-inset-bottom));
   }
   .photo-gallery {
     grid-template-columns: repeat(4, 1fr);

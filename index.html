@@ -159,6 +159,8 @@
           id="routes-browser"
           class="routes-browser"
           aria-label="湾区路线总览"
+          aria-hidden="true"
+          inert
         >
           <div class="browser-head">
             <div>
@@ -210,7 +212,9 @@
           ⛶ <span>全屏</span>
         </button>
         <div class="map-legend">
-          <span><i class="line-key"></i>完整骑行轨迹</span
+          <span
+            ><i class="line-key"></i
+            ><b id="route-legend-label">全部路线</b></span
           ><span><i class="arrow-key">➤</i>方向</span>
         </div>
         <div id="network-warning" class="network-warning" hidden>

@@ -6,6 +6,7 @@ const PARKING = {
 };
 const START = { lat: 37.31772, lon: -122.062212 };
 const map = L.map("map", { zoomControl: false, preferCanvas: true });
+map.setView([37.38, -122.02], 8);
 L.control.zoom({ position: "bottomright" }).addTo(map);
 L.DomEvent.disableClickPropagation(document.querySelector("#routes-browser"));
 L.DomEvent.disableScrollPropagation(document.querySelector("#routes-browser"));
@@ -106,9 +107,6 @@ async function loadRoute() {
     })
       .addTo(map)
       .bindTooltip("公共停车区");
-    map.fitBounds(line.getBounds(), {
-      padding: window.innerWidth < 761 ? [34, 70] : [55, 55],
-    });
     await loadPhotos().catch(() => {
       document.querySelector("#photo-status").textContent =
         "照片服务在本地预览中不可用；线上数据不会受影响。";
@@ -163,8 +161,11 @@ document
   .addEventListener("click", () => setSheet(false));
 
 function setRoutesBrowser(open) {
+  const browser = document.querySelector("#routes-browser");
   document.body.classList.toggle("routes-browser-open", open);
-  document.querySelector("#routes-browser").classList.toggle("open", open);
+  browser.classList.toggle("open", open);
+  browser.setAttribute("aria-hidden", String(!open));
+  browser.inert = !open;
   document
     .querySelector("#routes-open")
     .setAttribute("aria-expanded", String(open));
@@ -253,6 +254,9 @@ async function loadOverview() {
       document.querySelector("#sheet-toggle b").textContent = route.name;
       document.querySelector("#sheet-toggle small").textContent =
         `${route.distanceKm} km · ↑ ${route.climbM} m · ${verified ? "点按查看详情" : "候选待核验"}`;
+      document.querySelector("#route-legend-label").textContent = verified
+        ? "完整骑行轨迹"
+        : "候选轨迹";
       setRoutesBrowser(false);
       setSheet(false);
     });
