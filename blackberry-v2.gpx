@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Rodrigues Rides" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata><name>Blackberry Farm 溪谷自然线</name><desc>Public-start sample route. Map-verified; field ride pending.</desc></metadata>
+  <wpt lat="37.3179581" lon="-122.0604412"><name>Blackberry Farm public parking</name><sym>Parking Area</sym></wpt>
+  <trk><name>Blackberry Farm 溪谷自然线</name><type>Cycling</type><trkseg>
+      <trkpt lat="37.31772" lon="-122.062212"><ele>98.5</ele></trkpt>
+      <trkpt lat="37.317413" lon="-122.061538"><ele>96.25</ele></trkpt>
+      <trkpt lat="37.316438" lon="-122.060911"><ele>102.25</ele></trkpt>
+      <trkpt lat="37.315977" lon="-122.060935"><ele>101.75</ele></trkpt>
+      <trkpt lat="37.315723" lon="-122.060914"><ele>101.75</ele></trkpt>
+      <trkpt lat="37.315546" lon="-122.060696"><ele>102.75</ele></trkpt>
+      <trkpt lat="37.315118" lon="-122.060817"><ele>102</ele></trkpt>
+      <trkpt lat="37.314324" lon="-122.061224"><ele>104.5</ele></trkpt>
+      <trkpt lat="37.313618" lon="-122.061742"><ele>106.5</ele></trkpt>
+      <trkpt lat="37.313337" lon="-122.062692"><ele>104.5</ele></trkpt>
+      <trkpt lat="37.313535" lon="-122.063016"><ele>102.25</ele></trkpt>
+      <trkpt lat="37.313299" lon="-122.063832"><ele>103</ele></trkpt>
+      <trkpt lat="37.312947" lon="-122.063809"><ele>105.25</ele></trkpt>
+      <trkpt lat="37.312746" lon="-122.0634"><ele>106.5</ele></trkpt>
+      <trkpt lat="37.312688" lon="-122.063752"><ele>106.75</ele></trkpt>
+      <trkpt lat="37.311648" lon="-122.06276"><ele>112</ele></trkpt>
+      <trkpt lat="37.311098" lon="-122.061704"><ele>115</ele></trkpt>
+      <trkpt lat="37.311648" lon="-122.06276"><ele>112</ele></trkpt>
+      <trkpt lat="37.312688" lon="-122.063752"><ele>106.75</ele></trkpt>
+      <trkpt lat="37.312746" lon="-122.0634"><ele>106.5</ele></trkpt>
+      <trkpt lat="37.312938" lon="-122.063769"><ele>105.25</ele></trkpt>
+      <trkpt lat="37.313279" lon="-122.063921"><ele>103.25</ele></trkpt>
+      <trkpt lat="37.313493" lon="-122.063536"><ele>102.25</ele></trkpt>
+      <trkpt lat="37.31402" lon="-122.063287"><ele>98.75</ele></trkpt>
+      <trkpt lat="37.313752" lon="-122.063508"><ele>101</ele></trkpt>
+      <trkpt lat="37.313347" lon="-122.063615"><ele>102.75</ele></trkpt>
+      <trkpt lat="37.312952" lon="-122.063825"><ele>105.25</ele></trkpt>
+      <trkpt lat="37.312756" lon="-122.063569"><ele>106.25</ele></trkpt>
+      <trkpt lat="37.313235" lon="-122.061872"><ele>109.5</ele></trkpt>
+      <trkpt lat="37.314003" lon="-122.059748"><ele>113.25</ele></trkpt>
+      <trkpt lat="37.314644" lon="-122.059082"><ele>113.25</ele></trkpt>
+      <trkpt lat="37.315425" lon="-122.059071"><ele>112</ele></trkpt>
+      <trkpt lat="37.314436" lon="-122.059113"><ele>113.5</ele></trkpt>
+      <trkpt lat="37.31367" lon="-122.060597"><ele>112.5</ele></trkpt>
+      <trkpt lat="37.313115" lon="-122.062326"><ele>108</ele></trkpt>
+      <trkpt lat="37.312784" lon="-122.063696"><ele>106.25</ele></trkpt>
+      <trkpt lat="37.312952" lon="-122.063825"><ele>105.25</ele></trkpt>
+      <trkpt lat="37.313347" lon="-122.063615"><ele>102.75</ele></trkpt>
+      <trkpt lat="37.313752" lon="-122.063508"><ele>101</ele></trkpt>
+      <trkpt lat="37.31402" lon="-122.063287"><ele>98.75</ele></trkpt>
+      <trkpt lat="37.313493" lon="-122.063536"><ele>102.25</ele></trkpt>
+      <trkpt lat="37.313445" lon="-122.063216"><ele>102.5</ele></trkpt>
+      <trkpt lat="37.313365" lon="-122.062777"><ele>104</ele></trkpt>
+      <trkpt lat="37.313513" lon="-122.061962"><ele>106.25</ele></trkpt>
+      <trkpt lat="37.314029" lon="-122.061401"><ele>104.75</ele></trkpt>
+      <trkpt lat="37.314836" lon="-122.060825"><ele>103.25</ele></trkpt>
+      <trkpt lat="37.315486" lon="-122.060792"><ele>102.25</ele></trkpt>
+      <trkpt lat="37.31568" lon="-122.060759"><ele>102.5</ele></trkpt>
+      <trkpt lat="37.315841" lon="-122.060983"><ele>101.25</ele></trkpt>
+      <trkpt lat="37.316368" lon="-122.060929"><ele>102.25</ele></trkpt>
+      <trkpt lat="37.316726" lon="-122.060951"><ele>102.25</ele></trkpt>
+      <trkpt lat="37.31772" lon="-122.062212"><ele>98.5</ele></trkpt>
+      <trkpt lat="37.31772" lon="-122.062212"><ele>98.5</ele></trkpt>
+  </trkseg></trk>
+</gpx>

@@ -1,75 +1,223 @@
 <!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0c362e" />
-  <meta name="description" content="湾区低车流风景骑行路线：Cupertino、南湾、半岛、Santa Cruz 与东湾。" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><circle cx=%2232%22 cy=%2232%22 r=%2230%22 fill=%22%230c362e%22/><path d=%22M18 40l9-19 7 19 8-15 6 15%22 fill=%22none%22 stroke=%22%23f06a3a%22 stroke-width=%226%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>" />
-  <title>Bay Rides · 湾区骑行路线</title>
-  <link rel="preconnect" href="https://unpkg.com" crossorigin />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <header class="hero">
-    <nav class="nav"><a class="brand" href="#top" aria-label="Bay Rides 首页"><span>↗</span> BAY RIDES</a><button id="admin-open" class="admin-open" type="button">管理</button></nav>
-    <div id="top" class="hero-copy">
-      <p class="eyebrow">San Francisco Bay Area · road-level routes</p>
-      <h1>从下班后的一圈，<br />到一整天的海岸与山路。</h1>
-      <p class="hero-intro">12 条经过真实道路与骑行路径规划的路线。先看清起点、里程、爬升与路况，再决定今天骑多远。</p>
-      <div class="hero-stats"><span><b>5</b> 个区域</span><span><b>7–95</b> km</span><span><b>GPX</b> 随时下载</span></div>
-    </div>
-  </header>
-
-  <main>
-    <section class="filter-panel" aria-labelledby="filter-heading">
-      <div><p class="eyebrow dark">ROUTE FINDER</p><h2 id="filter-heading">找一条今天想骑的路</h2></div>
-      <div class="filter-grid">
-        <label>区域<select id="area-filter"><option value="all">全部区域</option><option value="cupertino">Cupertino</option><option value="south-bay">南湾</option><option value="peninsula">半岛</option><option value="santa-cruz">Santa Cruz</option><option value="east-bay">东湾</option></select></label>
-        <label>长度<select id="length-filter"><option value="all">全部长度</option><option value="daily">日常 · &lt; 20 km</option><option value="medium">中距离 · 20–49 km</option><option value="long">长途 · 50–100 km</option></select></label>
-        <label>难度<select id="difficulty-filter"><option value="all">全部难度</option><option value="easy">轻松</option><option value="moderate">适中</option><option value="hard">挑战</option></select></label>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#102923" />
+    <meta
+      name="description"
+      content="湾区真实道路级骑行路线探索与 GPX 导航。"
+    />
+    <title>Rodrigues Rides · 湾区骑行</title>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#">RODRIGUES <span>RIDES</span></a>
+      <div class="top-actions">
+        <span class="sample-badge">V2 样板 · 1 条已核验</span
+        ><button id="admin-open" class="icon-button" type="button">管理</button>
       </div>
-      <p id="result-count" class="result-count" aria-live="polite"></p>
-    </section>
-
-    <section id="route-list" class="route-list" aria-label="骑行路线"></section>
-  </main>
-
-  <dialog id="photo-dialog" class="photo-dialog" aria-label="骑行照片">
-    <button class="dialog-close" type="button" aria-label="关闭">×</button>
-    <img alt="骑行照片大图" /><div class="photo-dialog-meta"><p></p><button class="delete-photo" type="button">删除这张照片</button></div>
-  </dialog>
-
-  <dialog id="admin-dialog" class="admin-dialog" aria-labelledby="admin-title">
-    <button class="dialog-close" type="button" aria-label="关闭">×</button>
-    <form id="admin-form">
-      <p class="eyebrow dark">OWNER ACCESS</p><h2 id="admin-title">照片管理</h2>
-      <p>路线公开浏览；只有管理员可以上传或删除照片。密码只保存在本次浏览器标签页。</p>
-      <label>用户名<input name="username" value="ride" autocomplete="username" required /></label>
-      <label>密码<input name="password" type="password" autocomplete="current-password" required /></label>
-      <button type="submit">进入管理模式</button><p id="admin-status" role="status"></p>
-    </form>
-  </dialog>
-
-  <template id="route-template">
-    <article class="route-card">
-      <div class="route-copy">
-        <div class="route-index"></div><div class="route-heading"><p class="route-place"></p><h2></h2><p class="route-summary"></p></div>
-        <div class="metrics"><span><b class="metric-distance"></b> km<small>里程</small></span><span><b class="metric-climb"></b> m<small>累计爬升</small></span><span><b class="metric-time"></b><small>预计骑行</small></span><span><b class="metric-level"></b><small>难度</small></span></div>
-        <div class="route-notes"><p class="start-note"></p><p class="surface-note"></p></div>
-        <div class="actions"><a class="drive-link secondary" target="_blank" rel="noopener">开车到起点</a><a class="apple-link" target="_blank" rel="noopener">Apple Maps 骑行</a><a class="google-link" target="_blank" rel="noopener">Google Maps 骑行</a><button class="gpx-button secondary" type="button">下载 GPX</button><label class="photo-button admin-only">＋ 批量照片<input class="photo-input" type="file" accept="image/*" multiple /></label></div>
-        <p class="photo-status" aria-live="polite"></p>
+    </header>
+    <main class="explorer">
+      <aside class="route-panel" aria-label="路线详情">
+        <button
+          id="sheet-close"
+          class="sheet-close"
+          type="button"
+          aria-label="收起路线详情"
+        >
+          <span></span>
+        </button>
+        <div class="panel-head">
+          <p class="kicker">CUPERTINO · 日常探索</p>
+          <h1>Blackberry Farm<br />溪谷自然线</h1>
+          <p class="lede">
+            从公共停车区出发，沿 Stevens Creek
+            与公园铺装路径完成一圈。当前样板只发布已核对的轨迹，不展示其余待核验路线。
+          </p>
+        </div>
+        <div class="metrics" aria-label="路线指标">
+          <div>
+            <strong id="distance">3.8</strong><span>公里</span
+            ><small>实际轨迹</small>
+          </div>
+          <div>
+            <strong id="climb">49</strong><span>米</span><small>累计爬升</small>
+          </div>
+          <div>
+            <strong>20–30</strong><span>分钟</span><small>休闲骑行</small>
+          </div>
+          <div>
+            <strong>轻松</strong><span>难度</span><small>铺装为主</small>
+          </div>
+        </div>
+        <section class="route-facts">
+          <div>
+            <span class="fact-icon start"></span>
+            <p><b>骑行起终点</b>Blackberry Farm 公园内公共步道入口</p>
+          </div>
+          <div>
+            <span class="fact-icon parking"></span>
+            <p>
+              <b>停车</b>21979 San Fernando Ave
+              标记停车区；满位时按市府指引使用指定溢出停车
+            </p>
+          </div>
+          <div>
+            <span class="fact-icon surface"></span>
+            <p>
+              <b>路面与通行</b>铺装多用途路径与公园连接道；Nature Trail
+              仅限步行，轨迹不进入
+            </p>
+          </div>
+        </section>
+        <section class="verification">
+          <div>
+            <span class="status-dot"></span><b>地图数据已核验 · 待实骑复核</b>
+          </div>
+          <p>
+            轨迹来自既有 GPS 高程记录并对照 OpenStreetMap 与 Cupertino
+            市府步道资料；距离、闭合与爬升已程序校验。现场施工和标识优先。
+          </p>
+        </section>
+        <section class="navigation-block">
+          <h2>先停车，再开始骑行</h2>
+          <div class="button-row">
+            <a
+              id="apple-drive"
+              class="button secondary"
+              target="_blank"
+              rel="noopener"
+              >Apple Maps 驾车</a
+            ><a
+              id="google-drive"
+              class="button secondary"
+              target="_blank"
+              rel="noopener"
+              >Google Maps 驾车</a
+            >
+          </div>
+          <a class="button primary" href="blackberry-v2.gpx" download
+            >下载完整 GPX · 开始骑行</a
+          >
+          <p class="nav-limit">
+            Apple Maps / Google Maps
+            只用于到停车点，不会被包装成完整环线导航。骑行请使用本页轨迹或将 GPX
+            导入支持轨迹导航的 App。
+          </p>
+        </section>
+        <section class="photos-section">
+          <div class="section-title">
+            <div>
+              <p class="kicker">RIDE MEMORIES</p>
+              <h2>路线照片</h2>
+            </div>
+            <label class="upload-button admin-only"
+              >批量上传<input
+                id="photo-input"
+                type="file"
+                accept="image/*"
+                multiple
+            /></label>
+          </div>
+          <div id="photo-gallery" class="photo-gallery">
+            <p class="empty-photos">这条路线还没有公开照片。</p>
+          </div>
+          <p id="photo-status" class="photo-status" aria-live="polite"></p>
+        </section>
+      </aside>
+      <section class="map-stage" aria-label="湾区骑行主地图">
+        <div id="map" aria-label="Blackberry Farm 完整骑行轨迹"></div>
+        <div class="map-toolbar" role="group" aria-label="底图切换">
+          <button data-layer="outdoor" class="active" type="button">户外</button
+          ><button data-layer="street" type="button">地图</button
+          ><button data-layer="satellite" type="button">卫星</button>
+        </div>
+        <button
+          id="fullscreen"
+          class="fullscreen-button"
+          type="button"
+          aria-label="全屏查看地图"
+        >
+          ⛶ <span>全屏</span>
+        </button>
+        <div class="map-legend">
+          <span><i class="line-key"></i>完整骑行轨迹</span
+          ><span><i class="arrow-key">➤</i>方向</span>
+        </div>
+        <div id="network-warning" class="network-warning" hidden>
+          地图底图暂时无法载入。轨迹和 GPX 仍可使用，请检查网络后重试。
+        </div>
+        <button
+          id="sheet-toggle"
+          class="sheet-toggle"
+          type="button"
+          aria-expanded="false"
+        >
+          <span></span><b>Blackberry Farm 溪谷自然线</b
+          ><small>3.8 km · 49 m ↗</small>
+        </button>
+      </section>
+    </main>
+    <dialog id="manual-dialog" class="small-dialog">
+      <h2>这张照片没有 GPS</h2>
+      <p>
+        关闭窗口后，请在地图上点选照片拍摄位置。我们不会使用你的当前位置代替。
+      </p>
+      <div class="dialog-actions">
+        <button id="manual-cancel" class="button secondary" type="button">
+          取消这张</button
+        ><button id="manual-choose" class="button primary" type="button">
+          在地图上选位置
+        </button>
       </div>
-      <div class="map-wrap"><div class="map"></div><div class="map-legend"><span><i></i> 骑行轨迹</span><span>➤ 行进方向</span></div></div>
-    </article>
-  </template>
-
-  <footer><span>Bay Rides</span><p>路线会随施工、天气和道路政策变化。出发前请核对封路信息，遵守现场标识。</p><p>Map data © OpenStreetMap contributors · Bicycle routing by Valhalla</p></footer>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="https://unpkg.com/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.js"></script>
-  <script src="https://unpkg.com/exifr@7.1.3/dist/lite.umd.js"></script>
-  <script src="app.js"></script>
-</body>
+    </dialog>
+    <dialog id="photo-dialog" class="photo-dialog" aria-label="骑行照片">
+      <button class="dialog-close" type="button" aria-label="关闭">×</button
+      ><img alt="骑行照片大图" />
+      <div>
+        <p></p>
+        <button class="delete-photo" type="button">删除照片</button>
+      </div>
+    </dialog>
+    <dialog id="admin-dialog" class="small-dialog">
+      <button class="dialog-close" type="button" aria-label="关闭">×</button>
+      <form id="admin-form">
+        <p class="kicker">OWNER ACCESS</p>
+        <h2>照片管理</h2>
+        <p>公开浏览无需登录。上传和删除操作会在服务器验证管理员身份。</p>
+        <label
+          >用户名<input
+            name="username"
+            value="ride"
+            autocomplete="username"
+            required /></label
+        ><label
+          >密码<input
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required /></label
+        ><button class="button primary" type="submit">进入管理模式</button>
+        <p id="admin-status" role="status"></p>
+      </form>
+    </dialog>
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      crossorigin=""
+    ></script>
+    <script src="https://unpkg.com/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.js"></script>
+    <script src="https://unpkg.com/exifr@7.1.3/dist/lite.umd.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>
