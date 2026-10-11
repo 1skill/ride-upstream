@@ -356,23 +356,25 @@ async function loadOverview() {
   for (const [index, { route, data }] of routeData.entries()) {
     const button = document.createElement("button");
     const verified = route.verification === "map-verified-field-pending";
+    const invalid = route.mapStatus?.startsWith("hidden-invalid");
     button.type = "button";
-    button.className = `overview-route${verified ? " verified" : ""}`;
+    button.className = `overview-route${verified ? " verified" : ""}${invalid ? " invalid" : ""}`;
     button.dataset.overviewRoute = route.id;
-    button.innerHTML = `<strong>${route.name}</strong><span>${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m · ${verified ? "地图已核验" : "候选待核验"}</span>`;
+    button.disabled = invalid;
+    button.innerHTML = `<strong>${route.name}</strong><span>${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m · ${verified ? "地图已核验" : invalid ? "异常轨迹已隐藏" : "候选待核验"}</span>`;
     list.append(button);
     const card = document.createElement("article");
-    card.className = `mobile-route-card${verified ? " verified" : ""}`;
+    card.className = `mobile-route-card${verified ? " verified" : ""}${invalid ? " invalid" : ""}`;
     card.dataset.carouselRoute = route.id;
-    card.innerHTML = `<button class="route-card-main" type="button" aria-label="选择 ${route.name}"><span class="route-card-status">${verified ? "已核验" : "候选"}</span><strong>${route.name}</strong><span>${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m</span><small>${verified ? "可查看完整轨迹与 GPX" : "道路权限复核中"}</small></button>${verified ? '<button class="route-card-details" type="button">详情</button>' : ""}`;
+    card.innerHTML = `<button class="route-card-main" type="button" aria-label="选择 ${route.name}" ${invalid ? "disabled" : ""}><span class="route-card-status">${verified ? "已核验" : invalid ? "已隐藏" : "候选"}</span><strong>${route.name}</strong><span>${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m</span><small>${verified ? "可查看完整轨迹与 GPX" : invalid ? "轨迹跨水异常，等待重建" : "道路权限复核中"}</small></button>${verified ? '<button class="route-card-details" type="button">详情</button>' : ""}`;
     carousel.append(card);
-    allBounds.extend(L.geoJSON(data).getBounds());
+    if (!invalid) allBounds.extend(L.geoJSON(data).getBounds());
     if (route.id === ROUTE_ID) {
       overviewLayers.set(route.id, mainRouteLayer);
       if (mainRouteDecorator)
         overviewDecorators.set(route.id, mainRouteDecorator);
     }
-    if (route.id !== ROUTE_ID) {
+    if (route.id !== ROUTE_ID && !invalid) {
       const layer = L.geoJSON(data, {
         style: { color: routeColors[index], weight: 4, opacity: 0.72 },
       }).addTo(map);
@@ -426,11 +428,13 @@ async function loadOverview() {
       setSheet(false);
       syncMobileControlA11y();
     };
-    button.addEventListener("click", selectRoute);
-    routeSelectors.set(route.id, selectRoute);
-    card
-      .querySelector(".route-card-main")
-      .addEventListener("click", selectRoute);
+    if (!invalid) {
+      button.addEventListener("click", selectRoute);
+      routeSelectors.set(route.id, selectRoute);
+      card
+        .querySelector(".route-card-main")
+        .addEventListener("click", selectRoute);
+    }
     card
       .querySelector(".route-card-details")
       ?.addEventListener("click", () => setSheet(true));

@@ -919,6 +919,16 @@ body.admin-mode .delete-photo {
     background: #dff1e7;
     color: #176a4d;
   }
+  .mobile-route-card.invalid {
+    opacity: 0.72;
+  }
+  .mobile-route-card.invalid .route-card-main {
+    cursor: not-allowed;
+  }
+  .mobile-route-card.invalid .route-card-status {
+    background: #ffe3db;
+    color: #9c3d27;
+  }
   .ride-action-bar {
     position: absolute;
     z-index: 930;

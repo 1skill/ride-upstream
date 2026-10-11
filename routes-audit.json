@@ -90,7 +90,9 @@
       "descentM": 28,
       "loopGapM": 0,
       "metricSource": "GPS geometry + Valhalla/SRTM elevation",
-      "verification": "routing-generated-permission-review"
+      "verification": "routing-generated-permission-review",
+      "mapStatus": "hidden-invalid-water-crossing",
+      "reviewNote": "7.26 km geometry jump across San Francisco Bay; removed from the public map pending a complete road-level rebuild."
     },
     {
       "id": "iron-horse",
