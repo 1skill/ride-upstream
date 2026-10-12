@@ -1,4 +1,126 @@
 const ROUTE_ID = "blackberry";
+const REBUILD_ROUTES = [
+  {
+    id: "regnart",
+    name: "Regnart Creek 环线",
+    area: "Cupertino",
+    category: "daily",
+    status: "旧路线重建中",
+    reason: "社区溪流、公园串联和平缓路面，适合下班后的日常锻炼。",
+    highlights: "Regnart Creek Trail · Wilson Park · Creekside Park",
+    photoRoute: "regnart",
+  },
+  {
+    id: "apple",
+    name: "Apple Park 环线",
+    area: "Cupertino",
+    category: "daily",
+    status: "旧路线重建中",
+    reason: "城市建筑与公园绿道结合，适合短距离休闲骑。",
+    highlights: "Apple Park Visitor Center · Portal Park · Creekside Park",
+    photoRoute: "apple",
+  },
+  {
+    id: "mary",
+    name: "Lawson–Mary Avenue 环线",
+    area: "Cupertino",
+    category: "daily",
+    status: "旧路线重建中",
+    reason: "社区自行车道与 Mary Avenue 自行车桥组合，适合平日训练。",
+    highlights: "Memorial Park · Lawson Bikeway · Mary Avenue Bridge",
+    photoRoute: "mary",
+  },
+  {
+    id: "blackberry-original",
+    name: "Blackberry Farm 完整自然线",
+    area: "Cupertino",
+    category: "daily",
+    status: "旧路线扩建中",
+    reason: "溪流、树荫和自然保护区，是原来最有自然感的 Cupertino 路线。",
+    highlights: "McClellan Ranch · Stevens Creek Trail · Blackberry Farm",
+    photoRoute: "blackberry",
+  },
+  {
+    id: "vasona-lake",
+    name: "Vasona Lake 环湖候选线",
+    area: "South Bay",
+    category: "medium",
+    status: "道路与权限核验中",
+    reason: "目标是把湖景、公园与 Los Gatos Creek Trail 连成完整休闲路线。",
+    highlights: "Vasona Lake · Oak Meadow Park · Los Gatos Creek",
+  },
+  {
+    id: "stevens-reservoir",
+    name: "Stevens Creek Reservoir 候选线",
+    area: "Cupertino",
+    category: "medium",
+    status: "安全路线规划中",
+    reason: "水库和山麓风景突出，但必须先核对道路车流与可骑行路段。",
+    highlights: "Stevens Creek Reservoir · 山麓景观 · 公共停车点",
+  },
+];
+const ROUTE_CONTENT = {
+  blackberry: {
+    description: "从 Blackberry Farm 公共停车区进入 Stevens Creek Trail，沿溪谷共享步道骑到 McClellan Road 后原路返回。",
+    recommendation: "距离短、路面平缓，溪流和树荫集中，适合恢复骑、家庭骑或第一次熟悉路线。",
+    cardReason: "溪流树荫 · 轻松恢复骑",
+    highlights: ["Stevens Creek", "Blackberry Farm", "McClellan Ranch"],
+    surface: "铺装共享步道往返；排除仅限步行的 Nature Trail",
+  },
+  "los-gatos-creek": {
+    description: "沿 Los Gatos Creek Trail 的连续绿廊往返，当前轨迹是南段短线，并不是 Vasona Lake 环湖线。",
+    recommendation: "溪流、公园和连续绿道组合，长度不大，适合日常有氧或周末轻松骑。",
+    cardReason: "溪流绿廊 · 日常有氧",
+    highlights: ["Los Gatos Creek", "绿道", "河岸公园"],
+    surface: "以铺装共享步道为主；折返点原路返回",
+  },
+  "coyote-creek": {
+    description: "沿 Coyote Creek Trail 连续骑行后原路返回，坡度平缓，适合把骑行时间拉长。",
+    recommendation: "21 公里但爬升很少，适合稳定耐力训练；沿途是溪流、树木和城市绿带。",
+    cardReason: "平缓 21 km · 耐力训练",
+    highlights: ["Coyote Creek", "城市绿带", "连续 Trail"],
+    surface: "铺装共享步道为主；注意路口和临时封闭",
+  },
+  "sawyer-camp": {
+    description: "沿 Sawyer Camp Trail 在 Crystal Springs 水库一侧往返，不是环湖，也不会跨越禁止通行的水库区域。",
+    recommendation: "水库与林地景色是当前路线中最突出的一条，适合周末中距离风景骑。",
+    cardReason: "水库林景 · 周末风景骑",
+    highlights: ["Crystal Springs 水库", "林荫 Trail", "半岛山麓"],
+    surface: "铺装多用途步道往返；周末需礼让行人",
+  },
+  "portola-loop": {
+    description: "沿 Alpine Trail 与山麓自行车通道往返，包含比湾岸路线更明显的起伏。",
+    recommendation: "林地和山麓感更强，距离适中且有一定爬升，适合从平路进阶。",
+    cardReason: "山麓林地 · 进阶爬升",
+    highlights: ["Alpine Trail", "Portola Valley", "山麓林景"],
+    surface: "Trail 与道路连接段组合；需留意交叉口",
+  },
+  "west-cliff": {
+    description: "从 Santa Cruz 海岸沿 West Cliff 与 Wilder Ranch 方向往返，路线始终靠近太平洋景观。",
+    recommendation: "海景最集中，距离适中；适合天气晴朗时的周末休闲骑，但风大时体感难度会上升。",
+    cardReason: "太平洋海景 · 注意海风",
+    highlights: ["West Cliff", "太平洋海岸", "Wilder Ranch"],
+    surface: "海岸道路与共享路径组合；人多时减速",
+  },
+  "alameda-loop": {
+    description: "从 Crown Beach 沿 Alameda 海湾岸线骑往 Bay Farm Bicycle Bridge 后原路返回。",
+    recommendation: "几乎没有爬升，海湾视野开阔，适合家庭、恢复骑和轻松看日落。",
+    cardReason: "平坦海湾线 · 家庭友好",
+    highlights: ["Crown Beach", "San Francisco Bay", "Bay Farm Bridge"],
+    surface: "铺装海岸路径与自行车桥；往返线",
+  },
+  "iron-horse": {
+    description: "沿 Iron Horse Regional Trail 纵向往返，适合保持均匀节奏；出发前必须查看施工与封闭公告。",
+    recommendation: "路线连续、坡度很小，适合稳定训练；风景不是最强项，但节奏最容易控制。",
+    cardReason: "连续绿道 · 稳定节奏训练",
+    highlights: ["Iron Horse Trail", "East Bay 社区绿道", "低爬升"],
+    surface: "铺装区域绿道；施工提示优先于本页轨迹",
+  },
+};
+
+function enrichRoutes(routes) {
+  return routes.map((route) => ({ ...route, ...(ROUTE_CONTENT[route.id] || {}) }));
+}
 const STATE_KEY = "ride-mobile-state-v1";
 const savedState = (() => {
   try {
@@ -138,7 +260,11 @@ function updateRouteDetails(route, data) {
   document.querySelector("#detail-title").textContent = route.name;
   document.querySelector("#map").setAttribute("aria-label", `${route.name} 完整骑行轨迹`);
   document.querySelector("#detail-description").textContent =
-    `沿已核对的道路级骑行轨迹前往折返点，再沿同一路线返回。全程 ${route.distanceKm} 公里，当前状态为地图核验完成、待实骑确认。`;
+    route.description || `沿已核对的道路级骑行轨迹前往折返点，再沿同一路线返回。全程 ${route.distanceKm} 公里，当前状态为地图核验完成、待实骑确认。`;
+  document.querySelector("#detail-recommendation").textContent =
+    route.recommendation || "道路级轨迹已经核对，适合作为对应距离的训练路线。";
+  document.querySelector("#detail-highlights").textContent =
+    (route.highlights || []).join(" · ") || "连续骑行轨迹";
   document.querySelector("#distance").textContent = route.distanceKm;
   document.querySelector("#climb").textContent = Number.isFinite(route.climbM) ? route.climbM : "—";
   document.querySelector("#duration").textContent = routeDuration(route.distanceKm);
@@ -147,7 +273,7 @@ function updateRouteDetails(route, data) {
   document.querySelector("#detail-parking").textContent = parkingVerified
     ? route.parking.name
     : "合法停车位置尚未现场确认；请自行核对现场标志，驾车导航暂不开放";
-  document.querySelector("#detail-surface").textContent = "道路级往返轨迹；到蓝色折返点后沿原路返回";
+  document.querySelector("#detail-surface").textContent = route.surface || "道路级往返轨迹；到蓝色折返点后沿原路返回";
   document.querySelector("#detail-review-note").textContent = route.reviewNote;
   document.querySelector("#photos-section").hidden = route.id !== ROUTE_ID;
   const summary = document.querySelector(".ride-route-summary");
@@ -224,7 +350,7 @@ async function loadRoute() {
     const auditResponse = await fetch("routes-audit.json", { cache: "no-store" });
     if (!auditResponse.ok) throw new Error("audit");
     const audit = await auditResponse.json();
-    auditedRoutes = audit.routes;
+    auditedRoutes = enrichRoutes(audit.routes);
     const routeAudit = auditedRoutes.find((route) => route.id === ROUTE_ID);
     if (!routeAudit || routeAudit.mapStatus?.startsWith("hidden-invalid")) {
       map.setView([START.lat, START.lon], 12);
@@ -428,10 +554,43 @@ function applyOverviewFilters() {
       map.removeLayer(decorator);
     if (visible) visibleBounds.extend(layer.getBounds());
   });
+  document.querySelectorAll("[data-rebuild-route]").forEach((card) => {
+    card.hidden = !(
+      (area === "all" || card.dataset.area === area) &&
+      (category === "all" || card.dataset.category === category)
+    );
+  });
   if (visibleBounds.isValid())
     map.fitBounds(visibleBounds, {
       padding: window.innerWidth < 761 ? [28, 76] : [50, 50],
     });
+}
+
+async function rebuildPhotoCount(route) {
+  if (!route.photoRoute) return "尚无历史照片";
+  try {
+    const response = await fetch(`/api/photos?route=${encodeURIComponent(route.photoRoute)}`);
+    if (!response.ok) throw new Error("photos");
+    const photos = await response.json();
+    return `历史照片 ${photos.length} 张，数据已保留`;
+  } catch {
+    return "历史照片数据已保留";
+  }
+}
+
+async function renderRebuildRoutes() {
+  const list = document.querySelector("#rebuild-list");
+  list.replaceChildren();
+  for (const route of REBUILD_ROUTES) {
+    const card = document.createElement("article");
+    card.className = "rebuild-route";
+    card.dataset.rebuildRoute = route.id;
+    card.dataset.area = route.area;
+    card.dataset.category = route.category;
+    card.innerHTML = `<div><span>${route.status}</span><strong>${route.name}</strong></div><p>${route.reason}</p><small>${route.highlights}</small><em>正在读取照片状态…</em>`;
+    list.append(card);
+    card.querySelector("em").textContent = await rebuildPhotoCount(route);
+  }
 }
 
 async function loadOverview() {
@@ -439,13 +598,14 @@ async function loadOverview() {
     const audit = await fetch("routes-audit.json", { cache: "no-store" }).then(
       (response) => response.json(),
     );
-    auditedRoutes = audit.routes;
+    auditedRoutes = enrichRoutes(audit.routes);
   }
   document.querySelector("#routes-open b").textContent = auditedRoutes.length;
   const list = document.querySelector("#overview-list");
   const carousel = document.querySelector("#mobile-route-carousel");
   list.replaceChildren();
   carousel.replaceChildren();
+  await renderRebuildRoutes();
   const allBounds = L.latLngBounds();
   const routeData = await Promise.all(
     auditedRoutes.map(async (route) => ({
@@ -465,12 +625,12 @@ async function loadOverview() {
     button.className = `overview-route${verified ? " verified" : ""}${invalid ? " invalid" : ""}`;
     button.dataset.overviewRoute = route.id;
     button.disabled = !published;
-    button.innerHTML = `<strong>${route.name}</strong><span>${published ? `${route.area} · ${routeMetrics(route)} · 地图已核验` : `${route.area} · ${invalid ? "异常轨迹已隐藏" : "候选数据复核中"}`}</span>`;
+    button.innerHTML = `<strong>${route.name}</strong><span>${published ? `${route.area} · ${routeMetrics(route)} · 地图已核验` : `${route.area} · ${invalid ? "异常轨迹已隐藏" : "候选数据复核中"}`}</span>${published ? `<small>${route.recommendation || "道路级轨迹已核对"}</small>` : ""}`;
     list.append(button);
     const card = document.createElement("article");
     card.className = `mobile-route-card${published ? " verified" : " invalid"}`;
     card.dataset.carouselRoute = route.id;
-    card.innerHTML = `<button class="route-card-main" type="button" aria-label="选择 ${route.name}" ${published ? "" : "disabled"}><span class="route-card-status">${published ? "已核验" : invalid ? "已隐藏" : "复核中"}</span><strong>${route.name}</strong><span>${published ? `${route.area} · ${routeMetrics(route)}` : `${route.area} · 距离与爬升待复核`}</span><small>${published ? "可查看完整轨迹与 GPX" : invalid ? "异常轨迹已撤下，等待重建" : "详细轨迹暂停展示"}</small></button>${published ? '<button class="route-card-details" type="button">详情</button>' : ""}`;
+    card.innerHTML = `<button class="route-card-main" type="button" aria-label="选择 ${route.name}" ${published ? "" : "disabled"}><span class="route-card-status">${published ? "已核验" : invalid ? "已隐藏" : "复核中"}</span><strong>${route.name}</strong><span>${published ? `${route.area} · ${routeMetrics(route)}` : `${route.area} · 距离与爬升待复核`}</span><small>${published ? route.cardReason || route.recommendation || "可查看完整轨迹与 GPX" : invalid ? "异常轨迹已撤下，等待重建" : "详细轨迹暂停展示"}</small></button>${published ? '<button class="route-card-details" type="button">详情</button>' : ""}`;
     carousel.append(card);
     if (published) allBounds.extend(L.geoJSON(data).getBounds());
     if (route.id === ROUTE_ID) {
