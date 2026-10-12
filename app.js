@@ -206,15 +206,6 @@ function fitRouteLayer(layer) {
   else map.fitBounds(layer.getBounds(), { padding: [50, 50] });
 }
 
-function centerRouteInOverview(layer) {
-  const center = layer.getBounds().getCenter();
-  const overviewZoom = window.innerWidth < 761 ? 8 : 9;
-  map.flyTo(center, Math.min(map.getZoom(), overviewZoom), {
-    animate: true,
-    duration: 0.55,
-  });
-}
-
 function setLinkState(link, href, label) {
   link.textContent = label;
   link.classList.toggle("disabled", !href);
@@ -683,15 +674,12 @@ async function loadOverview() {
         route.id === ROUTE_ID
           ? routeFeature && L.geoJSON(routeFeature)
           : overviewLayers.get(route.id);
-      if (layer) {
-        if (detail) fitRouteLayer(layer);
-        else centerRouteInOverview(layer);
-      }
+      if (layer && detail) fitRouteLayer(layer);
       map.closePopup();
       overviewLayers.forEach((item, id) =>
         item.setStyle({
           weight: id === route.id ? 7 : 3,
-          opacity: id === route.id ? 0.96 : 0.2,
+          opacity: id === route.id ? 0.98 : 0.62,
         }),
       );
       overviewDecorators.forEach((item, id) => {
@@ -701,9 +689,7 @@ async function loadOverview() {
       document.querySelector("#sheet-toggle b").textContent = route.name;
       document.querySelector("#sheet-toggle small").textContent =
         `${routeMetrics(route)} · ${verified ? "点按查看详情" : "候选待核验"}`;
-      document.querySelector("#route-legend-label").textContent = verified
-        ? "完整骑行轨迹"
-        : "候选轨迹";
+      document.querySelector("#route-legend-label").textContent = route.name;
       updateRouteDetails(route, data);
       if (!detail && layer)
         L.marker(layer.getBounds().getCenter(), {
@@ -747,11 +733,13 @@ async function loadOverview() {
     .forEach((select) =>
       select.addEventListener("change", applyOverviewFilters),
     );
-  if (savedState.area)
-    document.querySelector("#overview-area").value = savedState.area;
-  if (savedState.category)
-    document.querySelector("#overview-distance").value = savedState.category;
+  document.querySelector("#overview-area").value = "all";
+  document.querySelector("#overview-distance").value = "all";
+  overviewLayers.forEach((layer) =>
+    layer.setStyle({ weight: 4, opacity: 0.72 }),
+  );
   if (
+    savedState.mode === "ride" &&
     savedState.selectedRouteId &&
     routeSelectors.has(savedState.selectedRouteId)
   ) {
