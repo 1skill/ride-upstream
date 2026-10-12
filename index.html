@@ -24,11 +24,6 @@
     />
     <link
       rel="stylesheet"
-      href="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.css"
-      crossorigin=""
-    />
-    <link
-      rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css"
     />
     <link rel="stylesheet" href="styles.css" />
@@ -37,7 +32,7 @@
     <header class="topbar">
       <a class="brand" href="#">RODRIGUES <span>RIDES</span></a>
       <div class="top-actions">
-        <span class="sample-badge">V2 样板 · 1 条地图核验</span
+        <span class="sample-badge">V2 · 8 条地图核验路线</span
         ><button id="admin-open" class="icon-button" type="button">管理</button>
       </div>
     </header>
@@ -52,9 +47,9 @@
           <span></span><b>收起地图 ↑</b>
         </button>
         <div class="panel-head">
-          <p class="kicker">CUPERTINO · 铺装往返</p>
-          <h1>Stevens Creek Trail<br />往返线</h1>
-          <p class="lede">
+          <p id="detail-kicker" class="kicker">CUPERTINO · 铺装往返</p>
+          <h1 id="detail-title">Stevens Creek Trail<br />往返线</h1>
+          <p id="detail-description" class="lede">
             从 Blackberry Farm 公共停车区进入 Stevens Creek Trail，沿市府标注的自行车/行人共享步道骑到 McClellan Road 后原路返回。
           </p>
         </div>
@@ -67,37 +62,31 @@
             <strong id="climb">—</strong><span>米</span><small>待实骑记录</small>
           </div>
           <div>
-            <strong>10–15</strong><span>分钟</span><small>休闲往返</small>
+            <strong id="duration">10–15</strong><span>分钟</span><small>参考 15 km/h</small>
           </div>
           <div>
-            <strong>轻松</strong><span>难度</span><small>铺装共享道</small>
+            <strong id="difficulty">轻松</strong><span>难度</span><small>地图估算</small>
           </div>
         </div>
         <section class="route-facts">
           <div>
             <span class="fact-icon start"></span>
-            <p><b>骑行起终点</b>Blackberry Farm 公共停车区旁步道入口</p>
+            <p><b>骑行起终点</b><span id="detail-start">Blackberry Farm 公共停车区旁步道入口</span></p>
           </div>
           <div>
             <span class="fact-icon parking"></span>
-            <p>
-              <b>停车</b>21979 San Fernando Ave
-              标记停车区；满位时按市府指引使用指定溢出停车
-            </p>
+            <p><b>停车</b><span id="detail-parking">Blackberry Farm 公共停车区；满位时按市府指引使用指定溢出停车</span></p>
           </div>
           <div>
             <span class="fact-icon surface"></span>
-            <p>
-              <b>路面与通行</b>Stevens Creek Trail 铺装共享步道；Nature Trail
-              仅限步行，本轨迹不进入
-            </p>
+            <p><b>路线类型</b><span id="detail-surface">铺装共享步道往返；到折返点后沿原路返回</span></p>
           </div>
         </section>
         <section class="verification">
           <div>
-            <span class="status-dot"></span><b>地图与官方通行资料已核对 · 待实骑复核</b>
+            <span class="status-dot"></span><b id="detail-verification">地图与官方通行资料已核对 · 待实骑复核</b>
           </div>
-          <p>
+          <p id="detail-review-note">
             轨迹由自行车道路路由生成，并对照 Cupertino 市府 Blackberry Farm 与 McClellan Ranch 步道图。路线为往返线，不再伪装成环线。
           </p>
         </section>
@@ -118,16 +107,16 @@
               >Google Maps 驾车</a
             >
           </div>
-          <a class="button primary" href="blackberry-v2.gpx" download
+          <a id="detail-gpx" class="button primary" href="blackberry-v2.gpx" download
             >下载完整 GPX · 开始骑行</a
           >
           <p class="nav-limit">
             Apple Maps / Google Maps
             只用于到停车点，不会被包装成完整路线导航。骑行请使用本页轨迹或将 GPX
-            导入支持轨迹导航的 App；到 McClellan Road 后沿原路返回。
+            导入支持轨迹导航的 App；到蓝色折返点后沿原路返回。
           </p>
         </section>
-        <section class="photos-section">
+        <section id="photos-section" class="photos-section">
           <div class="section-title">
             <div>
               <p class="kicker">RIDE MEMORIES</p>
@@ -214,7 +203,7 @@
             >
           </div>
           <p class="candidate-note">
-            绿色为已核验样板；其余路线仍在道路权限复核阶段，暂不提供导航。
+            全部路线已通过轨迹连续性和官方骑行权限资料复核；仍需实骑确认路况。停车未核验的路线不会提供驾车按钮。
           </p>
           <div id="overview-list" class="overview-list">
             <p class="overview-loading">正在载入路线…</p>
@@ -263,7 +252,7 @@
             <i class="ri-car-line" aria-hidden="true"></i>
             Google 停车
           </a>
-          <a href="blackberry-v2.gpx" download>
+          <a id="mobile-gpx" href="blackberry-v2.gpx" download>
             <i class="ri-download-cloud-2-line" aria-hidden="true"></i>
             下载 GPX
           </a>
@@ -326,11 +315,6 @@
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       crossorigin=""
     ></script>
-    <script
-      src="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.js"
-      crossorigin=""
-    ></script>
-    <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.4/leaflet-maplibre-gl.js"></script>
     <script src="https://unpkg.com/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.js"></script>
     <script src="https://unpkg.com/exifr@7.1.3/dist/lite.umd.js"></script>
     <script src="app.js"></script>

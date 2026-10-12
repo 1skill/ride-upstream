@@ -250,6 +250,7 @@ h2 {
 .button.disabled {
   cursor: not-allowed;
   opacity: 0.58;
+  pointer-events: none;
 }
 .button.secondary {
   background: var(--mist);
@@ -978,6 +979,10 @@ body.admin-mode .delete-photo {
   .ride-action-bar a:last-child {
     background: var(--orange);
     color: #fff;
+  }
+  .ride-action-bar a.disabled {
+    opacity: 0.45;
+    pointer-events: none;
   }
   .ride-action-bar i {
     font-size: 22px;

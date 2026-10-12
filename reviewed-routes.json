@@ -1,0 +1,167 @@
+{
+  "generated": "2026-10-12T10:27:37.842Z",
+  "routes": [
+    {
+      "id": "los-gatos-creek",
+      "name": "Los Gatos Creek Trail 往返线",
+      "file": "los-gatos-creek.geojson",
+      "gpx": "los-gatos-creek.gpx",
+      "area": "South Bay",
+      "category": "daily",
+      "distanceKm": 6.2,
+      "climbM": 128,
+      "descentM": 128,
+      "loopGapM": 0,
+      "metricSource": "Road geometry + Valhalla/SRTM elevation",
+      "verification": "map-verified-field-pending",
+      "routeType": "out-and-back",
+      "permissionSource": "https://parks.sccgov.org/sites/g/files/exjcpb961/files/PixNParks-2020-Los-Gatos-Creek.pdf",
+      "parking": {
+        "lat": 37.2014492,
+        "lon": -121.987994,
+        "name": "Los Gatos Creek Trail 往返线 起点附近；停车合法性待现场确认",
+        "unverified": true
+      },
+      "reviewNote": "已检查坐标连续性、排除渡轮与高速公路，并对照官方资料确认该 Trail 允许骑行；仍需实骑确认临时施工与现场路况。"
+    },
+    {
+      "id": "coyote-creek",
+      "name": "Coyote Creek Trail 往返线",
+      "file": "coyote-creek.geojson",
+      "gpx": "coyote-creek.gpx",
+      "area": "South Bay",
+      "category": "medium",
+      "distanceKm": 21.2,
+      "climbM": 49,
+      "descentM": 51,
+      "loopGapM": 0,
+      "metricSource": "Road geometry + Valhalla/SRTM elevation",
+      "verification": "map-verified-field-pending",
+      "routeType": "out-and-back",
+      "permissionSource": "https://www.sanjoseca.gov/Home/Components/FacilityDirectory/FacilityDirectory/3037/2058",
+      "parking": {
+        "lat": 37.2839559,
+        "lon": -121.8135168,
+        "name": "Coyote Creek Trail 往返线 起点附近；停车合法性待现场确认",
+        "unverified": true
+      },
+      "reviewNote": "已检查坐标连续性、排除渡轮与高速公路，并对照官方资料确认该 Trail 允许骑行；仍需实骑确认临时施工与现场路况。"
+    },
+    {
+      "id": "sawyer-camp",
+      "name": "Sawyer Camp Trail 往返线",
+      "file": "sawyer-camp.geojson",
+      "gpx": "sawyer-camp.gpx",
+      "area": "Peninsula",
+      "category": "medium",
+      "distanceKm": 19.4,
+      "climbM": 163,
+      "descentM": 171,
+      "loopGapM": 0,
+      "metricSource": "Road geometry + Valhalla/SRTM elevation",
+      "verification": "map-verified-field-pending",
+      "routeType": "out-and-back",
+      "permissionSource": "https://www.smcgov.org/parks/sawyer-camp-segment",
+      "parking": {
+        "lat": 37.5310108,
+        "lon": -122.363993,
+        "name": "Sawyer Camp Trail 往返线 起点附近；停车合法性待现场确认",
+        "unverified": true
+      },
+      "reviewNote": "已检查坐标连续性、排除渡轮与高速公路，并对照官方资料确认该 Trail 允许骑行；仍需实骑确认临时施工与现场路况。"
+    },
+    {
+      "id": "portola-loop",
+      "name": "Alpine Trail 往返线",
+      "file": "portola-loop.geojson",
+      "gpx": "portola-loop.gpx",
+      "area": "Peninsula",
+      "category": "medium",
+      "distanceKm": 16.1,
+      "climbM": 116,
+      "descentM": 110,
+      "loopGapM": 0,
+      "metricSource": "Road geometry + Valhalla/SRTM elevation",
+      "verification": "map-verified-field-pending",
+      "routeType": "out-and-back",
+      "permissionSource": "https://www.smcgov.org/parks/trail/alpine-trail",
+      "parking": {
+        "lat": 37.372851,
+        "lon": -122.208348,
+        "name": "Alpine Trail 往返线 起点附近；停车合法性待现场确认",
+        "unverified": true
+      },
+      "reviewNote": "已检查坐标连续性、排除渡轮与高速公路，并对照官方资料确认该 Trail 允许骑行；仍需实骑确认临时施工与现场路况。"
+    },
+    {
+      "id": "west-cliff",
+      "name": "West Cliff–Wilder 海岸往返线",
+      "file": "west-cliff.geojson",
+      "gpx": "west-cliff.gpx",
+      "area": "Santa Cruz",
+      "category": "medium",
+      "distanceKm": 12.4,
+      "climbM": 68,
+      "descentM": 62,
+      "loopGapM": 0,
+      "metricSource": "Road geometry + Valhalla/SRTM elevation",
+      "verification": "map-verified-field-pending",
+      "routeType": "out-and-back",
+      "permissionSource": "https://www.cityofsantacruz.com/government/city-departments/parks-recreation/parks-beaches-open-spaces/parks/bethany-curve",
+      "parking": {
+        "lat": 36.964804,
+        "lon": -122.023202,
+        "name": "West Cliff–Wilder 海岸往返线 起点附近；停车合法性待现场确认",
+        "unverified": true
+      },
+      "reviewNote": "已检查坐标连续性、排除渡轮与高速公路，并对照官方资料确认该 Trail 允许骑行；仍需实骑确认临时施工与现场路况。"
+    },
+    {
+      "id": "alameda-loop",
+      "name": "Crown Beach–Bay Farm Bridge 往返线",
+      "file": "alameda-loop.geojson",
+      "gpx": "alameda-loop.gpx",
+      "area": "East Bay",
+      "category": "daily",
+      "distanceKm": 7.6,
+      "climbM": 7,
+      "descentM": 7,
+      "loopGapM": 0,
+      "metricSource": "Road geometry + Valhalla/SRTM elevation",
+      "verification": "map-verified-field-pending",
+      "routeType": "out-and-back",
+      "permissionSource": "https://www.ebparks.org/parks/crown-beach",
+      "parking": {
+        "lat": 37.7603695,
+        "lon": -122.2675865,
+        "name": "Crown Beach parking"
+      },
+      "reviewNote": "已检查坐标连续性、排除渡轮与高速公路，并对照官方资料确认该 Trail 允许骑行；仍需实骑确认临时施工与现场路况。"
+    },
+    {
+      "id": "iron-horse",
+      "name": "Iron Horse Trail 纵走往返线",
+      "file": "iron-horse.geojson",
+      "gpx": "iron-horse.gpx",
+      "area": "East Bay",
+      "category": "medium",
+      "distanceKm": 20,
+      "climbM": 10,
+      "descentM": 10,
+      "loopGapM": 0,
+      "metricSource": "Road geometry + Valhalla/SRTM elevation",
+      "verification": "map-verified-field-pending",
+      "routeType": "out-and-back",
+      "permissionSource": "https://www.ebparks.org/trails/interpark/iron-horse",
+      "parking": {
+        "lat": 37.8033083,
+        "lon": -121.9841879,
+        "name": "Iron Horse Trail 纵走往返线 起点附近；停车合法性待现场确认",
+        "unverified": true
+      },
+      "closedUntil": "2026-10-13",
+      "advisory": "Walnut Creek Mt Diablo Boulevard 至 Civic Park 路段公告关闭至 2026-10-12；Robert I. Schroder 桥夜间施工持续至 2026-12-31。",
+      "reviewNote": "已检查坐标连续性、排除渡轮与高速公路，并对照官方资料确认该 Trail 允许骑行；仍需实骑确认临时施工与现场路况。"
+    }
+  ]
+}

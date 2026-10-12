@@ -14,13 +14,7 @@ function saveState(patch) {
   } catch {}
   localStorage.setItem(STATE_KEY, JSON.stringify({ ...current, ...patch }));
 }
-const PARKING = {
-  name: "Blackberry Farm parking",
-  lat: 37.3179581,
-  lon: -122.0604412,
-};
 const START = { lat: 37.317705, lon: -122.060421 };
-const TURNAROUND = { lat: 37.312999, lon: -122.06382 };
 const map = L.map("map", { zoomControl: false, preferCanvas: true });
 map.setView([37.38, -122.02], 8);
 L.control.zoom({ position: "bottomright" }).addTo(map);
@@ -28,13 +22,18 @@ L.DomEvent.disableClickPropagation(document.querySelector("#routes-browser"));
 L.DomEvent.disableScrollPropagation(document.querySelector("#routes-browser"));
 
 const baseLayers = {
-  outdoor: L.maplibreGL({
-    style: "https://tiles.openfreemap.org/styles/liberty",
-    attribution: "© OpenStreetMap contributors · OpenFreeMap",
-  }),
-  street: L.maplibreGL({
-    style: "https://tiles.openfreemap.org/styles/bright",
-    attribution: "© OpenStreetMap contributors · OpenFreeMap",
+  outdoor: L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+    {
+      maxZoom: 19,
+      detectRetina: true,
+      attribution: "Tiles © Esri",
+    },
+  ),
+  street: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    detectRetina: true,
+    attribution: "© OpenStreetMap contributors",
   }),
   satellite: L.tileLayer(
     "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
@@ -58,6 +57,7 @@ let didRestoreState = false;
 const overviewLayers = new Map();
 const overviewDecorators = new Map();
 const routeSelectors = new Map();
+const selectionMarkers = L.layerGroup().addTo(map);
 let auditedRoutes = [];
 const routeColors = [
   "#ed6943",
@@ -75,16 +75,96 @@ function routeMetrics(route) {
     : "爬升待实骑";
   return `${route.distanceKm} km · ${climb}`;
 }
+function fitRouteLayer(layer) {
+  if (window.innerWidth < 761)
+    map.fitBounds(layer.getBounds(), {
+      paddingTopLeft: [28, 170],
+      paddingBottomRight: [28, 150],
+    });
+  else map.fitBounds(layer.getBounds(), { padding: [50, 50] });
+}
 
-const driveDestination = encodeURIComponent(`${PARKING.lat},${PARKING.lon}`);
-document.querySelector("#apple-drive").href =
-  `https://maps.apple.com/?daddr=${driveDestination}&dirflg=d`;
-document.querySelector("#google-drive").href =
-  `https://www.google.com/maps/dir/?api=1&destination=${driveDestination}&travelmode=driving`;
-document.querySelector("#mobile-apple-drive").href =
-  document.querySelector("#apple-drive").href;
-document.querySelector("#mobile-google-drive").href =
-  document.querySelector("#google-drive").href;
+function setLinkState(link, href, label) {
+  link.textContent = label;
+  link.classList.toggle("disabled", !href);
+  link.setAttribute("aria-disabled", String(!href));
+  if (href) link.href = href;
+  else link.removeAttribute("href");
+}
+
+function routeEndpoints(data) {
+  const coordinates = data.features[0].geometry.coordinates;
+  const midpoint = Math.floor((coordinates.length - 1) / 2);
+  return {
+    start: coordinates[0],
+    turnaround: coordinates[midpoint],
+  };
+}
+
+function routeDuration(distanceKm) {
+  const minutes = Math.max(10, Math.round((distanceKm / 15) * 60 / 5) * 5);
+  return `${minutes}–${minutes + Math.max(5, Math.round(minutes * 0.2 / 5) * 5)}`;
+}
+
+function routeDifficulty(route) {
+  if ((route.climbM || 0) > 300 || route.distanceKm >= 50) return "挑战";
+  if ((route.climbM || 0) > 120 || route.distanceKm >= 20) return "适中";
+  return "轻松";
+}
+
+function updateRouteDetails(route, data) {
+  const { start, turnaround } = routeEndpoints(data);
+  const parkingVerified = route.parking && !route.parking.unverified;
+  const destination = parkingVerified
+    ? encodeURIComponent(`${route.parking.lat},${route.parking.lon}`)
+    : null;
+  const apple = destination
+    ? `https://maps.apple.com/?daddr=${destination}&dirflg=d`
+    : null;
+  const google = destination
+    ? `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`
+    : null;
+  setLinkState(document.querySelector("#apple-drive"), apple, parkingVerified ? "Apple Maps 驾车" : "停车点待核验");
+  setLinkState(document.querySelector("#google-drive"), google, parkingVerified ? "Google Maps 驾车" : "停车点待核验");
+  const mobileApple = document.querySelector("#mobile-apple-drive");
+  const mobileGoogle = document.querySelector("#mobile-google-drive");
+  mobileApple.innerHTML = `<i class="ri-parking-box-line" aria-hidden="true"></i>${parkingVerified ? "Apple 停车" : "停车待核验"}`;
+  mobileGoogle.innerHTML = `<i class="ri-car-line" aria-hidden="true"></i>${parkingVerified ? "Google 停车" : "停车待核验"}`;
+  setLinkState(mobileApple, apple, mobileApple.textContent);
+  setLinkState(mobileGoogle, google, mobileGoogle.textContent);
+  document.querySelector("#detail-gpx").href = route.gpx;
+  document.querySelector("#mobile-gpx").href = route.gpx;
+  document.querySelector("#detail-kicker").textContent = `${route.area.toUpperCase()} · 往返线`;
+  document.querySelector("#detail-title").textContent = route.name;
+  document.querySelector("#map").setAttribute("aria-label", `${route.name} 完整骑行轨迹`);
+  document.querySelector("#detail-description").textContent =
+    `沿已核对的道路级骑行轨迹前往折返点，再沿同一路线返回。全程 ${route.distanceKm} 公里，当前状态为地图核验完成、待实骑确认。`;
+  document.querySelector("#distance").textContent = route.distanceKm;
+  document.querySelector("#climb").textContent = Number.isFinite(route.climbM) ? route.climbM : "—";
+  document.querySelector("#duration").textContent = routeDuration(route.distanceKm);
+  document.querySelector("#difficulty").textContent = routeDifficulty(route);
+  document.querySelector("#detail-start").textContent = `${start[1].toFixed(5)}, ${start[0].toFixed(5)}`;
+  document.querySelector("#detail-parking").textContent = parkingVerified
+    ? route.parking.name
+    : "合法停车位置尚未现场确认；请自行核对现场标志，驾车导航暂不开放";
+  document.querySelector("#detail-surface").textContent = "道路级往返轨迹；到蓝色折返点后沿原路返回";
+  document.querySelector("#detail-review-note").textContent = route.reviewNote;
+  document.querySelector("#photos-section").hidden = route.id !== ROUTE_ID;
+  const summary = document.querySelector(".ride-route-summary");
+  summary.querySelector("strong").textContent = route.name;
+  summary.querySelector("span").textContent = `${routeMetrics(route)} · 地图已核验`;
+  selectionMarkers.clearLayers();
+  L.marker([start[1], start[0]], { icon: markerIcon("start"), zIndexOffset: 500 })
+    .addTo(selectionMarkers)
+    .bindTooltip("骑行起点 / 终点");
+  L.marker([turnaround[1], turnaround[0]], { icon: markerIcon("turnaround"), zIndexOffset: 480 })
+    .addTo(selectionMarkers)
+    .bindTooltip("折返点 · 沿原路返回");
+  if (parkingVerified)
+    L.marker([route.parking.lat, route.parking.lon], { icon: markerIcon("parking"), zIndexOffset: 450 })
+      .addTo(selectionMarkers)
+      .bindTooltip("已核对停车点");
+}
 
 function markerIcon(type) {
   const html =
@@ -131,6 +211,14 @@ function directionDecorator(layer, color) {
   return decorators;
 }
 
+function outboundDirectionLayer(data) {
+  const coordinates = data.features[0].geometry.coordinates;
+  const midpoint = Math.floor((coordinates.length - 1) / 2);
+  return L.polyline(
+    coordinates.slice(0, midpoint + 1).map(([lon, lat]) => [lat, lon]),
+  );
+}
+
 async function loadRoute() {
   try {
     const auditResponse = await fetch("routes-audit.json", { cache: "no-store" });
@@ -150,26 +238,10 @@ async function loadRoute() {
       style: { color: "#ed6943", weight: 7, opacity: 0.96 },
     }).addTo(map);
     mainRouteLayer = line;
-    mainRouteDecorator = directionDecorator(line, "#123c33");
-    mainRouteDecorator?.addTo(map);
-    L.marker([START.lat, START.lon], {
-      icon: markerIcon("start"),
-      zIndexOffset: 500,
-    })
-      .addTo(map)
-      .bindTooltip("骑行起点 / 终点");
-    L.marker([PARKING.lat, PARKING.lon], {
-      icon: markerIcon("parking"),
-      zIndexOffset: 450,
-    })
-      .addTo(map)
-      .bindTooltip("公共停车区");
-    L.marker([TURNAROUND.lat, TURNAROUND.lon], {
-      icon: markerIcon("turnaround"),
-      zIndexOffset: 480,
-    })
-      .addTo(map)
-      .bindTooltip("折返点 · 沿原路返回");
+    mainRouteDecorator = directionDecorator(
+      outboundDirectionLayer(routeFeature),
+      "#123c33",
+    );
     await loadPhotos().catch(() => {
       document.querySelector("#photo-status").textContent =
         "照片服务在本地预览中不可用；线上数据不会受影响。";
@@ -246,7 +318,8 @@ document
   .addEventListener("click", () => setRoutesBrowser(true));
 
 function setMobileMode(mode) {
-  if (mode === "ride" && selectedRouteId !== ROUTE_ID) return;
+  const selectedRoute = auditedRoutes.find((route) => route.id === selectedRouteId);
+  if (mode === "ride" && !selectedRoute) return;
   document.body.classList.toggle("ride-mode", mode === "ride");
   saveState({ mode, selectedRouteId });
   document
@@ -255,14 +328,15 @@ function setMobileMode(mode) {
       button.classList.toggle("active", button.dataset.mobileMode === mode),
     );
   if (mode === "ride") {
+    map.closePopup();
     overviewLayers.forEach((layer, id) => {
-      if (id !== ROUTE_ID && map.hasLayer(layer)) map.removeLayer(layer);
+      if (id !== selectedRouteId && map.hasLayer(layer)) map.removeLayer(layer);
     });
     overviewDecorators.forEach((layer, id) => {
-      if (id !== ROUTE_ID && map.hasLayer(layer)) map.removeLayer(layer);
+      if (id !== selectedRouteId && map.hasLayer(layer)) map.removeLayer(layer);
     });
-    if (mainRouteLayer)
-      map.fitBounds(mainRouteLayer.getBounds(), { padding: [54, 72] });
+    const selectedLayer = overviewLayers.get(selectedRouteId);
+    if (selectedLayer) fitRouteLayer(selectedLayer);
   } else {
     document.body.classList.remove("route-focused");
     document.querySelector("#overview-area").value = "all";
@@ -314,6 +388,7 @@ function showAllRoutes() {
     category: "all",
   });
   setMobileMode("explore");
+  selectionMarkers.clearLayers();
 }
 document
   .querySelector("#show-all-routes")
@@ -347,8 +422,9 @@ function applyOverviewFilters() {
     if (!layer) return;
     if (visible && !map.hasLayer(layer)) layer.addTo(map);
     if (!visible && map.hasLayer(layer)) map.removeLayer(layer);
-    if (decorator && visible && !map.hasLayer(decorator)) decorator.addTo(map);
-    if (decorator && !visible && map.hasLayer(decorator))
+    const showDecorator = visible && selectedRouteId === route.id;
+    if (decorator && showDecorator && !map.hasLayer(decorator)) decorator.addTo(map);
+    if (decorator && !showDecorator && map.hasLayer(decorator))
       map.removeLayer(decorator);
     if (visible) visibleBounds.extend(layer.getBounds());
   });
@@ -407,11 +483,13 @@ async function loadOverview() {
         style: { color: routeColors[index], weight: 4, opacity: 0.72 },
       }).addTo(map);
       layer.bindPopup(
-        `<b>${route.name}</b><br>${route.distanceKm} km · ↑ ${route.climbM} m<br><small>候选轨迹，权限复核中</small>`,
+        `<b>${route.name}</b><br>${routeMetrics(route)}<br><small>地图已核验 · 待实骑复核</small>`,
       );
       overviewLayers.set(route.id, layer);
-      const decorator = directionDecorator(layer, routeColors[index]);
-      decorator?.addTo(map);
+      const decorator = directionDecorator(
+        outboundDirectionLayer(data),
+        routeColors[index],
+      );
       if (decorator) overviewDecorators.set(route.id, decorator);
     }
     const selectRoute = () => {
@@ -422,7 +500,7 @@ async function loadOverview() {
         route.id === ROUTE_ID
           ? routeFeature && L.geoJSON(routeFeature)
           : overviewLayers.get(route.id);
-      if (layer) map.fitBounds(layer.getBounds(), { padding: [34, 34] });
+      if (layer) fitRouteLayer(layer);
       if (route.id !== ROUTE_ID) overviewLayers.get(route.id)?.openPopup();
       else map.closePopup();
       overviewLayers.forEach((item, id) =>
@@ -441,6 +519,7 @@ async function loadOverview() {
       document.querySelector("#route-legend-label").textContent = verified
         ? "完整骑行轨迹"
         : "候选轨迹";
+      updateRouteDetails(route, data);
       document
         .querySelectorAll(".mobile-route-card")
         .forEach((item) =>
@@ -459,13 +538,17 @@ async function loadOverview() {
     if (published) {
       button.addEventListener("click", selectRoute);
       routeSelectors.set(route.id, selectRoute);
+      overviewLayers.get(route.id)?.on("click", selectRoute);
       card
         .querySelector(".route-card-main")
         .addEventListener("click", selectRoute);
     }
     card
       .querySelector(".route-card-details")
-      ?.addEventListener("click", () => setSheet(true));
+      ?.addEventListener("click", () => {
+        selectRoute();
+        setSheet(true);
+      });
   }
   syncMobileControlA11y();
   document
@@ -484,7 +567,7 @@ async function loadOverview() {
     routeSelectors.get(savedState.selectedRouteId)();
     didRestoreState = true;
   }
-  if (savedState.mode === "ride" && selectedRouteId === ROUTE_ID)
+  if (savedState.mode === "ride" && selectedRouteId)
     setMobileMode("ride");
   return allBounds;
 }
@@ -555,16 +638,8 @@ function authHeader(username, password) {
 }
 const adminDialog = document.querySelector("#admin-dialog");
 function resetMobileViewport() {
-  const viewport = document.querySelector('meta[name="viewport"]');
-  if (!viewport) return;
-  const normal = "width=device-width, initial-scale=1, viewport-fit=cover";
   document.activeElement?.blur();
-  viewport.setAttribute("content", `${normal}, maximum-scale=1`);
-  window.scrollTo(0, 0);
-  setTimeout(() => {
-    viewport.setAttribute("content", normal);
-    map.invalidateSize();
-  }, 220);
+  requestAnimationFrame(() => map.invalidateSize());
 }
 function setAdminMode(active) {
   document.body.classList.toggle("admin-mode", active);
@@ -754,7 +829,7 @@ map.on("zoomend", () => {
   overviewDecorators.forEach((decorator, id) => {
     const routeVisible = map.hasLayer(overviewLayers.get(id));
     const arrowVisible =
-      showArrows && routeVisible && (!focusedRoute || focusedRoute === id);
+      showArrows && routeVisible && focusedRoute === id;
     if (arrowVisible && !map.hasLayer(decorator)) decorator.addTo(map);
     if (!arrowVisible && map.hasLayer(decorator)) map.removeLayer(decorator);
   });
