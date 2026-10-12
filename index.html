@@ -37,7 +37,7 @@
     <header class="topbar">
       <a class="brand" href="#">RODRIGUES <span>RIDES</span></a>
       <div class="top-actions">
-        <span class="sample-badge">路线数据复核中</span
+        <span class="sample-badge">V2 样板 · 1 条地图核验</span
         ><button id="admin-open" class="icon-button" type="button">管理</button>
       </div>
     </header>
@@ -52,31 +52,31 @@
           <span></span><b>收起地图 ↑</b>
         </button>
         <div class="panel-head">
-          <p class="kicker">CUPERTINO · 暂停导航</p>
-          <h1>Blackberry Farm<br />轨迹复核中</h1>
+          <p class="kicker">CUPERTINO · 铺装往返</p>
+          <h1>Stevens Creek Trail<br />往返线</h1>
           <p class="lede">
-            当前轨迹存在多处自交和未确认连接，已经从公共地图撤下。完成道路级重建和骑行权限核验前，不提供导航。
+            从 Blackberry Farm 公共停车区进入 Stevens Creek Trail，沿市府标注的自行车/行人共享步道骑到 McClellan Road 后原路返回。
           </p>
         </div>
         <div class="metrics" aria-label="路线指标">
           <div>
-            <strong id="distance">—</strong><span>公里</span
-            ><small>等待重建</small>
+            <strong id="distance">1.72</strong><span>公里</span
+            ><small>道路级轨迹</small>
           </div>
           <div>
-            <strong id="climb">—</strong><span>米</span><small>等待重建</small>
+            <strong id="climb">—</strong><span>米</span><small>待实骑记录</small>
           </div>
           <div>
-            <strong>—</strong><span>分钟</span><small>暂停估算</small>
+            <strong>10–15</strong><span>分钟</span><small>休闲往返</small>
           </div>
           <div>
-            <strong>—</strong><span>难度</span><small>暂停评估</small>
+            <strong>轻松</strong><span>难度</span><small>铺装共享道</small>
           </div>
         </div>
         <section class="route-facts">
           <div>
             <span class="fact-icon start"></span>
-            <p><b>骑行起终点</b>Blackberry Farm 公园内公共步道入口</p>
+            <p><b>骑行起终点</b>Blackberry Farm 公共停车区旁步道入口</p>
           </div>
           <div>
             <span class="fact-icon parking"></span>
@@ -88,17 +88,17 @@
           <div>
             <span class="fact-icon surface"></span>
             <p>
-              <b>路面与通行</b>铺装多用途路径与公园连接道；Nature Trail
-              仅限步行，轨迹不进入
+              <b>路面与通行</b>Stevens Creek Trail 铺装共享步道；Nature Trail
+              仅限步行，本轨迹不进入
             </p>
           </div>
         </section>
         <section class="verification">
           <div>
-            <span class="status-dot"></span><b>轨迹已撤下 · 等待重建</b>
+            <span class="status-dot"></span><b>地图与官方通行资料已核对 · 待实骑复核</b>
           </div>
           <p>
-            原轨迹包含 28 处非相邻线段自交，不能作为骑行导航。页面保留照片和历史数据，但 GPX 暂停下载。
+            轨迹由自行车道路路由生成，并对照 Cupertino 市府 Blackberry Farm 与 McClellan Ranch 步道图。路线为往返线，不再伪装成环线。
           </p>
         </section>
         <section class="navigation-block">
@@ -118,10 +118,13 @@
               >Google Maps 驾车</a
             >
           </div>
-          <span class="button primary disabled">GPX 已暂停</span>
+          <a class="button primary" href="blackberry-v2.gpx" download
+            >下载完整 GPX · 开始骑行</a
+          >
           <p class="nav-limit">
             Apple Maps / Google Maps
-            目前只保留停车位置参考，不提供完整骑行导航。请勿使用旧 GPX 骑行。
+            只用于到停车点，不会被包装成完整路线导航。骑行请使用本页轨迹或将 GPX
+            导入支持轨迹导航的 App；到 McClellan Road 后沿原路返回。
           </p>
         </section>
         <section class="photos-section">
@@ -145,7 +148,7 @@
         </section>
       </aside>
       <section class="map-stage" aria-label="湾区骑行主地图">
-        <div id="map" aria-label="Blackberry Farm 完整骑行轨迹"></div>
+        <div id="map" aria-label="Stevens Creek Trail 往返骑行轨迹"></div>
         <nav class="mobile-mode-switch" aria-label="手机浏览模式">
           <button class="active" data-mobile-mode="explore" type="button">
             <i class="ri-compass-3-line" aria-hidden="true"></i>探索
@@ -155,8 +158,8 @@
           </button>
         </nav>
         <div class="ride-route-summary" aria-hidden="true">
-          <strong>Blackberry Farm 溪谷自然线</strong>
-          <span>3.8 km · ↑ 49 m · 地图已核验</span>
+          <strong>Stevens Creek Trail 往返线</strong>
+          <span>1.72 km · 爬升待实骑 · 地图已核验</span>
         </div>
         <button
           id="mobile-filter-open"
@@ -271,8 +274,8 @@
           type="button"
           aria-expanded="false"
         >
-          <span></span><b>Blackberry Farm 溪谷自然线</b
-          ><small>3.8 km · 49 m ↗</small>
+          <span></span><b>Stevens Creek Trail 往返线</b
+          ><small>1.72 km · 爬升待实骑</small>
         </button>
       </section>
     </main>

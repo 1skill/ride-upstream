@@ -3,18 +3,19 @@
   "routes": [
     {
       "id": "blackberry",
-      "name": "Blackberry Farm 溪谷自然线",
+      "name": "Stevens Creek Trail 往返线",
       "file": "blackberry-v2.geojson",
       "area": "Cupertino",
       "category": "daily",
-      "distanceKm": 3.8,
-      "climbM": 49,
-      "descentM": 49,
+      "distanceKm": 1.72,
+      "climbM": null,
+      "descentM": null,
       "loopGapM": 0,
-      "metricSource": "GPS geometry + Valhalla/SRTM elevation",
-      "verification": "invalid-geometry-review",
-      "mapStatus": "hidden-invalid-self-intersections",
-      "reviewNote": "53-point geometry contains 28 non-adjacent segment intersections and crosses areas without confirmed bike access; removed pending a complete road-level rebuild."
+      "metricSource": "Valhalla/OpenStreetMap bicycle geometry; elevation pending field validation",
+      "verification": "map-verified-field-pending",
+      "routeType": "out-and-back",
+      "permissionSource": "City of Cupertino Blackberry Farm and McClellan Ranch trail maps identify this alignment as an accessible pedestrian/bicycle trail",
+      "reviewNote": "Uses Stevens Creek Trail only; excludes the footpath-only Nature Trail. Turn around at McClellan Road and return on the same trail."
     },
     {
       "id": "los-gatos-creek",

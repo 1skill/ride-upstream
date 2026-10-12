@@ -572,6 +572,19 @@ body.admin-mode .admin-only {
   place-items: center;
   font: 900 12px sans-serif;
 }
+.turnaround-marker {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #1677a3;
+  color: #fff;
+  box-shadow: 0 3px 10px #102a2350;
+  font-size: 13px;
+  font-weight: 900;
+}
 .photo-marker {
   width: 43px;
   height: 43px;

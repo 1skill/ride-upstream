@@ -19,7 +19,8 @@ const PARKING = {
   lat: 37.3179581,
   lon: -122.0604412,
 };
-const START = { lat: 37.31772, lon: -122.062212 };
+const START = { lat: 37.317705, lon: -122.060421 };
+const TURNAROUND = { lat: 37.312999, lon: -122.06382 };
 const map = L.map("map", { zoomControl: false, preferCanvas: true });
 map.setView([37.38, -122.02], 8);
 L.control.zoom({ position: "bottomright" }).addTo(map);
@@ -68,6 +69,12 @@ const routeColors = [
   "#3d7d43",
   "#675647",
 ];
+function routeMetrics(route) {
+  const climb = Number.isFinite(route.climbM)
+    ? `↑ ${route.climbM} m`
+    : "爬升待实骑";
+  return `${route.distanceKm} km · ${climb}`;
+}
 
 const driveDestination = encodeURIComponent(`${PARKING.lat},${PARKING.lon}`);
 document.querySelector("#apple-drive").href =
@@ -83,6 +90,8 @@ function markerIcon(type) {
   const html =
     type === "parking"
       ? '<div class="parking-marker">P</div>'
+      : type === "turnaround"
+        ? '<div class="turnaround-marker">↩</div>'
       : '<div class="route-marker"></div>';
   return L.divIcon({
     className: "",
@@ -155,6 +164,12 @@ async function loadRoute() {
     })
       .addTo(map)
       .bindTooltip("公共停车区");
+    L.marker([TURNAROUND.lat, TURNAROUND.lon], {
+      icon: markerIcon("turnaround"),
+      zIndexOffset: 480,
+    })
+      .addTo(map)
+      .bindTooltip("折返点 · 沿原路返回");
     await loadPhotos().catch(() => {
       document.querySelector("#photo-status").textContent =
         "照片服务在本地预览中不可用；线上数据不会受影响。";
@@ -374,12 +389,12 @@ async function loadOverview() {
     button.className = `overview-route${verified ? " verified" : ""}${invalid ? " invalid" : ""}`;
     button.dataset.overviewRoute = route.id;
     button.disabled = !published;
-    button.innerHTML = `<strong>${route.name}</strong><span>${published ? `${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m · 地图已核验` : `${route.area} · ${invalid ? "异常轨迹已隐藏" : "候选数据复核中"}`}</span>`;
+    button.innerHTML = `<strong>${route.name}</strong><span>${published ? `${route.area} · ${routeMetrics(route)} · 地图已核验` : `${route.area} · ${invalid ? "异常轨迹已隐藏" : "候选数据复核中"}`}</span>`;
     list.append(button);
     const card = document.createElement("article");
     card.className = `mobile-route-card${published ? " verified" : " invalid"}`;
     card.dataset.carouselRoute = route.id;
-    card.innerHTML = `<button class="route-card-main" type="button" aria-label="选择 ${route.name}" ${published ? "" : "disabled"}><span class="route-card-status">${published ? "已核验" : invalid ? "已隐藏" : "复核中"}</span><strong>${route.name}</strong><span>${published ? `${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m` : `${route.area} · 距离与爬升待复核`}</span><small>${published ? "可查看完整轨迹与 GPX" : invalid ? "异常轨迹已撤下，等待重建" : "详细轨迹暂停展示"}</small></button>${published ? '<button class="route-card-details" type="button">详情</button>' : ""}`;
+    card.innerHTML = `<button class="route-card-main" type="button" aria-label="选择 ${route.name}" ${published ? "" : "disabled"}><span class="route-card-status">${published ? "已核验" : invalid ? "已隐藏" : "复核中"}</span><strong>${route.name}</strong><span>${published ? `${route.area} · ${routeMetrics(route)}` : `${route.area} · 距离与爬升待复核`}</span><small>${published ? "可查看完整轨迹与 GPX" : invalid ? "异常轨迹已撤下，等待重建" : "详细轨迹暂停展示"}</small></button>${published ? '<button class="route-card-details" type="button">详情</button>' : ""}`;
     carousel.append(card);
     if (published) allBounds.extend(L.geoJSON(data).getBounds());
     if (route.id === ROUTE_ID) {
@@ -422,7 +437,7 @@ async function loadOverview() {
       });
       document.querySelector("#sheet-toggle b").textContent = route.name;
       document.querySelector("#sheet-toggle small").textContent =
-        `${route.distanceKm} km · ↑ ${route.climbM} m · ${verified ? "点按查看详情" : "候选待核验"}`;
+        `${routeMetrics(route)} · ${verified ? "点按查看详情" : "候选待核验"}`;
       document.querySelector("#route-legend-label").textContent = verified
         ? "完整骑行轨迹"
         : "候选轨迹";
