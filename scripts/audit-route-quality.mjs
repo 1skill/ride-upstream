@@ -19,8 +19,27 @@ function metersBetween(a, b) {
 
 function nearestDistance(point, line) {
   let nearest = Infinity;
-  for (const candidate of line)
-    nearest = Math.min(nearest, metersBetween(point, candidate));
+  const latitudeScale = 111320;
+  const longitudeScale =
+    latitudeScale * Math.cos(toRad(point[1]));
+  for (let index = 1; index < line.length; index += 1) {
+    const start = line[index - 1];
+    const end = line[index];
+    const ax = (start[0] - point[0]) * longitudeScale;
+    const ay = (start[1] - point[1]) * latitudeScale;
+    const bx = (end[0] - point[0]) * longitudeScale;
+    const by = (end[1] - point[1]) * latitudeScale;
+    const dx = bx - ax;
+    const dy = by - ay;
+    const denominator = dx * dx + dy * dy;
+    const position = denominator
+      ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / denominator))
+      : 0;
+    nearest = Math.min(
+      nearest,
+      Math.hypot(ax + position * dx, ay + position * dy),
+    );
+  }
   return nearest;
 }
 

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-12T10:27:37.843Z",
+  "generated": "2026-10-12T12:44:27.968Z",
   "routes": [
     {
       "id": "blackberry",
@@ -121,12 +121,12 @@
       "gpx": "west-cliff.gpx",
       "area": "Santa Cruz",
       "category": "medium",
-      "distanceKm": 12.4,
-      "climbM": 68,
-      "descentM": 62,
+      "distanceKm": 12.3,
+      "climbM": 81,
+      "descentM": 81,
       "loopGapM": 0,
-      "metricSource": "Road geometry + Valhalla/SRTM elevation",
-      "verification": "map-verified-field-pending",
+      "metricSource": "BRouter/OSM bicycle geometry and elevation",
+      "verification": "open-source-cross-checked-field-pending",
       "routeType": "out-and-back",
       "permissionSource": "https://www.cityofsantacruz.com/government/city-departments/parks-recreation/parks-beaches-open-spaces/parks/bethany-curve",
       "parking": {
@@ -135,7 +135,7 @@
         "name": "West Cliff–Wilder 海岸往返线 起点附近；停车合法性待现场确认",
         "unverified": true
       },
-      "reviewNote": "已检查坐标连续性、排除渡轮与高速公路，并对照官方资料确认该 Trail 允许骑行；仍需实骑确认临时施工与现场路况。"
+      "reviewNote": "已用 BRouter 与 OSM 自行车路由交叉核对；城市侧起点附近包含约 5 米需下车通过的连接段。 仍需实骑确认临时施工与现场状况。"
     },
     {
       "id": "alameda-loop",
@@ -144,12 +144,12 @@
       "gpx": "alameda-loop.gpx",
       "area": "East Bay",
       "category": "daily",
-      "distanceKm": 7.6,
-      "climbM": 7,
-      "descentM": 7,
+      "distanceKm": 6.2,
+      "climbM": 5,
+      "descentM": 5,
       "loopGapM": 0,
-      "metricSource": "Road geometry + Valhalla/SRTM elevation",
-      "verification": "map-verified-field-pending",
+      "metricSource": "BRouter/OSM bicycle geometry and elevation",
+      "verification": "open-source-cross-checked-field-pending",
       "routeType": "out-and-back",
       "permissionSource": "https://www.ebparks.org/parks/crown-beach",
       "parking": {
@@ -157,7 +157,7 @@
         "lon": -122.2675865,
         "name": "Crown Beach parking"
       },
-      "reviewNote": "已检查坐标连续性、排除渡轮与高速公路，并对照官方资料确认该 Trail 允许骑行；仍需实骑确认临时施工与现场路况。"
+      "reviewNote": "骑行起点已移到 Crown Beach 自行车道，避开旧路线开头需要下车通过的海滩连接段。 仍需实骑确认临时施工与现场状况。"
     },
     {
       "id": "iron-horse",
@@ -167,11 +167,11 @@
       "area": "East Bay",
       "category": "medium",
       "distanceKm": 20,
-      "climbM": 10,
-      "descentM": 10,
+      "climbM": 59,
+      "descentM": 59,
       "loopGapM": 0,
-      "metricSource": "Road geometry + Valhalla/SRTM elevation",
-      "verification": "map-verified-field-pending",
+      "metricSource": "BRouter/OSM bicycle geometry and elevation",
+      "verification": "open-source-cross-checked-field-pending",
       "routeType": "out-and-back",
       "permissionSource": "https://www.ebparks.org/trails/interpark/iron-horse",
       "parking": {
@@ -182,7 +182,7 @@
       },
       "closedUntil": "2026-10-13",
       "advisory": "Walnut Creek Mt Diablo Boulevard 至 Civic Park 路段公告关闭至 2026-10-12；Robert I. Schroder 桥夜间施工持续至 2026-12-31。",
-      "reviewNote": "已检查坐标连续性、排除渡轮与高速公路，并对照官方资料确认该 Trail 允许骑行；仍需实骑确认临时施工与现场路况。"
+      "reviewNote": "全程采用 OSM 标记为区域自行车路线的道路；出发前仍需查看公园管理方的临时封闭公告。 仍需实骑确认临时施工与现场状况。"
     }
   ]
 }

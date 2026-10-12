@@ -5,6 +5,7 @@
   "scripts": {
     "check": "node --check app.js && node --check api/photos.js && node --check api/admin.js && node --check middleware.js",
     "audit:routes": "node scripts/audit-route-quality.mjs",
+    "rebuild:risk-routes": "node scripts/rebuild-risk-routes.mjs",
     "dev": "vercel dev"
   },
   "dependencies": {

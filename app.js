@@ -197,6 +197,17 @@ function routeMetrics(route) {
     : "爬升待实骑";
   return `${route.distanceKm} km · ${climb}`;
 }
+function isMapReviewed(route) {
+  return [
+    "map-verified-field-pending",
+    "open-source-cross-checked-field-pending",
+  ].includes(route.verification);
+}
+function verificationLabel(route) {
+  return route.verification === "open-source-cross-checked-field-pending"
+    ? "双引擎道路核验 · 待实骑"
+    : "地图与官方资料核验 · 待实骑";
+}
 function fitRouteLayer(layer) {
   if (window.innerWidth < 761)
     map.fitBounds(layer.getBounds(), {
@@ -278,10 +289,12 @@ function updateRouteDetails(route, data, { showMarkers = true } = {}) {
     : `${driveTarget.name}；已开放驾车到起点附近，停车合法性仍须按现场标志确认`;
   document.querySelector("#detail-surface").textContent = route.surface || "道路级往返轨迹；到蓝色折返点后沿原路返回";
   document.querySelector("#detail-review-note").textContent = route.reviewNote;
+  document.querySelector("#detail-verification").textContent =
+    verificationLabel(route);
   document.querySelector("#photos-section").hidden = route.id !== ROUTE_ID;
   const summary = document.querySelector(".ride-route-summary");
   summary.querySelector("strong").textContent = route.name;
-  summary.querySelector("span").textContent = `${routeMetrics(route)} · 地图已核验`;
+  summary.querySelector("span").textContent = `${routeMetrics(route)} · ${verificationLabel(route)}`;
   selectionMarkers.clearLayers();
   if (!showMarkers) return;
   L.marker([start[1], start[0]], { icon: markerIcon("start"), zIndexOffset: 500 })
@@ -638,19 +651,20 @@ async function loadOverview() {
   );
   for (const [index, { route, data }] of routeData.entries()) {
     const button = document.createElement("button");
-    const verified = route.verification === "map-verified-field-pending";
+    const verified = isMapReviewed(route);
+    const verification = verificationLabel(route);
     const invalid = route.mapStatus?.startsWith("hidden-invalid");
     const published = verified && !invalid;
     button.type = "button";
     button.className = `overview-route${verified ? " verified" : ""}${invalid ? " invalid" : ""}`;
     button.dataset.overviewRoute = route.id;
     button.disabled = !published;
-    button.innerHTML = `<strong>${route.name}</strong><span>${published ? `${route.area} · ${routeMetrics(route)} · 地图已核验` : `${route.area} · ${invalid ? "异常轨迹已隐藏" : "候选数据复核中"}`}</span>${published ? `<small>${route.recommendation || "道路级轨迹已核对"}</small>` : ""}`;
+    button.innerHTML = `<strong>${route.name}</strong><span>${published ? `${route.area} · ${routeMetrics(route)} · ${verification}` : `${route.area} · ${invalid ? "异常轨迹已隐藏" : "候选数据复核中"}`}</span>${published ? `<small>${route.recommendation || "道路级轨迹已核对"}</small>` : ""}`;
     list.append(button);
     const card = document.createElement("article");
     card.className = `mobile-route-card${published ? " verified" : " invalid"}`;
     card.dataset.carouselRoute = route.id;
-    card.innerHTML = `<button class="route-card-main" type="button" aria-label="选择 ${route.name}" ${published ? "" : "disabled"}><span class="route-card-status">${published ? "已核验" : invalid ? "已隐藏" : "复核中"}</span><strong>${route.name}</strong><span>${published ? `${route.area} · ${routeMetrics(route)}` : `${route.area} · 距离与爬升待复核`}</span><small>${published ? route.cardReason || route.recommendation || "可查看完整轨迹与 GPX" : invalid ? "异常轨迹已撤下，等待重建" : "详细轨迹暂停展示"}</small></button>${published ? '<button class="route-card-details" type="button">详情</button>' : ""}`;
+    card.innerHTML = `<button class="route-card-main" type="button" aria-label="选择 ${route.name}" ${published ? "" : "disabled"}><span class="route-card-status">${published ? (route.verification === "open-source-cross-checked-field-pending" ? "双引擎核验" : "已核验") : invalid ? "已隐藏" : "复核中"}</span><strong>${route.name}</strong><span>${published ? `${route.area} · ${routeMetrics(route)}` : `${route.area} · 距离与爬升待复核`}</span><small>${published ? route.cardReason || route.recommendation || "可查看完整轨迹与 GPX" : invalid ? "异常轨迹已撤下，等待重建" : "详细轨迹暂停展示"}</small></button>${published ? '<button class="route-card-details" type="button">详情</button>' : ""}`;
     carousel.append(card);
     if (published) allBounds.extend(L.geoJSON(data).getBounds());
     if (route.id === ROUTE_ID) {
@@ -663,7 +677,7 @@ async function loadOverview() {
         style: { color: routeColors[index], weight: 4, opacity: 0.72 },
       }).addTo(map);
       layer.bindPopup(
-        `<b>${route.name}</b><br>${routeMetrics(route)}<br><small>地图已核验 · 待实骑复核</small>`,
+        `<b>${route.name}</b><br>${routeMetrics(route)}<br><small>${verification}</small>`,
       );
       overviewLayers.set(route.id, layer);
       const decorator = directionDecorator(

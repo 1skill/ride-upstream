@@ -921,7 +921,9 @@ body.admin-mode .delete-photo {
     padding-top: 30px;
   }
   .panel-head h1 {
-    font-size: 38px;
+    font-size: clamp(29px, 8.5vw, 36px);
+    line-height: 1.03;
+    overflow-wrap: anywhere;
   }
   .lede {
     font-size: 13px;
