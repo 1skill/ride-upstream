@@ -234,7 +234,7 @@ function routeDifficulty(route) {
   return "轻松";
 }
 
-function updateRouteDetails(route, data) {
+function updateRouteDetails(route, data, { showMarkers = true } = {}) {
   const { start, turnaround } = routeEndpoints(data);
   const parkingVerified = route.parking && !route.parking.unverified;
   const driveTarget = route.parking || {
@@ -283,6 +283,7 @@ function updateRouteDetails(route, data) {
   summary.querySelector("strong").textContent = route.name;
   summary.querySelector("span").textContent = `${routeMetrics(route)} · 地图已核验`;
   selectionMarkers.clearLayers();
+  if (!showMarkers) return;
   L.marker([start[1], start[0]], { icon: markerIcon("start"), zIndexOffset: 500 })
     .addTo(selectionMarkers)
     .bindTooltip("骑行起点 / 终点");
@@ -307,15 +308,6 @@ function markerIcon(type) {
     html,
     iconSize: type === "parking" ? [26, 26] : [20, 20],
     iconAnchor: type === "parking" ? [13, 13] : [10, 10],
-  });
-}
-
-function routeLabelIcon(name) {
-  return L.divIcon({
-    className: "",
-    html: `<div class="route-location-label">${name}</div>`,
-    iconSize: [190, 32],
-    iconAnchor: [95, 44],
   });
 }
 
@@ -682,7 +674,7 @@ async function loadOverview() {
     }
     const selectRoute = ({ detail = false } = {}) => {
       selectedRouteId = route.id;
-      document.body.classList.add("route-focused");
+      document.body.classList.toggle("route-focused", detail);
       saveState({ selectedRouteId: route.id });
       const layer =
         route.id === ROUTE_ID
@@ -690,6 +682,7 @@ async function loadOverview() {
           : overviewLayers.get(route.id);
       if (layer && detail) fitRouteLayer(layer);
       map.closePopup();
+      selectionMarkers.clearLayers();
       overviewLayers.forEach((item, id) =>
         item.setStyle({
           weight: id === route.id ? 7 : 3,
@@ -697,20 +690,15 @@ async function loadOverview() {
         }),
       );
       overviewDecorators.forEach((item, id) => {
-        if (id === route.id && !map.hasLayer(item)) item.addTo(map);
+        if (detail && id === route.id && !map.hasLayer(item)) item.addTo(map);
         if (id !== route.id && map.hasLayer(item)) map.removeLayer(item);
+        if (!detail && id === route.id && map.hasLayer(item)) map.removeLayer(item);
       });
       document.querySelector("#sheet-toggle b").textContent = route.name;
       document.querySelector("#sheet-toggle small").textContent =
         `${routeMetrics(route)} · ${verified ? "点按查看详情" : "候选待核验"}`;
       document.querySelector("#route-legend-label").textContent = route.name;
-      updateRouteDetails(route, data);
-      if (!detail && layer)
-        L.marker(layer.getBounds().getCenter(), {
-          icon: routeLabelIcon(route.name),
-          interactive: false,
-          zIndexOffset: 650,
-        }).addTo(selectionMarkers);
+      updateRouteDetails(route, data, { showMarkers: detail });
       document
         .querySelectorAll(".mobile-route-card")
         .forEach((item) =>
@@ -1017,12 +1005,15 @@ document.addEventListener("visibilitychange", () => {
 });
 map.on("zoomend", () => {
   const showArrows = map.getZoom() >= 9;
+  const routeDetailActive =
+    document.body.classList.contains("route-focused") ||
+    document.body.classList.contains("ride-mode");
   const focusedRoute = document.querySelector(".mobile-route-card.selected")
     ?.dataset.carouselRoute;
   overviewDecorators.forEach((decorator, id) => {
     const routeVisible = map.hasLayer(overviewLayers.get(id));
     const arrowVisible =
-      showArrows && routeVisible && focusedRoute === id;
+      showArrows && routeDetailActive && routeVisible && focusedRoute === id;
     if (arrowVisible && !map.hasLayer(decorator)) decorator.addTo(map);
     if (!arrowVisible && map.hasLayer(decorator)) map.removeLayer(decorator);
   });
