@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="Rodrigues Rides" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
   <metadata><name>Sawyer Camp Trail 往返线</name><desc>Map-reviewed bicycle route; field ride pending. Return on the same route.</desc></metadata>
-  <wpt lat="37.5310108" lon="-122.363993"><name>Sawyer Camp Trail 往返线 起点附近；停车合法性待现场确认</name><sym>Parking Area</sym></wpt>
+  <wpt lat="37.5310108" lon="-122.363993"><name>骑行线路起点 / 终点：Sawyer Camp South Gate</name><sym>Flag, Green</sym><type>Route Start</type></wpt>
+  <wpt lat="37.5310108" lon="-122.363993"><name>Sawyer Camp Trail South Gate 停车区（Crystal Springs Road / Skyline Boulevard）</name><sym>Parking Area</sym></wpt>
+  <wpt lat="37.5888533" lon="-122.4131168"><name>骑行折返点：沿原路返回</name><sym>Flag, Blue</sym><type>Turnaround</type></wpt>
   <trk><name>Sawyer Camp Trail 往返线</name><type>Cycling</type><trkseg>
       <trkpt lat="37.5310108" lon="-122.363993"></trkpt>
       <trkpt lat="37.5309495" lon="-122.364103"></trkpt>

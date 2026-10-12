@@ -262,6 +262,17 @@ h2 {
   color: #74817d;
   margin: 10px 2px;
 }
+.navigation-block h3 {
+  margin: 18px 0 6px;
+  color: var(--ink);
+  font-size: 14px;
+}
+.navigation-step-note {
+  margin: -4px 0 10px;
+  color: #63736d;
+  font-size: 11px;
+  line-height: 1.5;
+}
 .section-title {
   display: flex;
   justify-content: space-between;

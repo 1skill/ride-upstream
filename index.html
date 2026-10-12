@@ -99,7 +99,8 @@
           </p>
         </section>
         <section class="navigation-block">
-          <h2>先停车，再开始骑行</h2>
+          <h2>① 开车到骑行起点</h2>
+          <p class="navigation-step-note">这里从你当前所在位置出发是正确的：先把车开到路线停车点。</p>
           <div class="button-row">
             <a
               id="apple-drive"
@@ -115,13 +116,13 @@
               >Google Maps 驾车</a
             >
           </div>
+          <h3>② 从固定起点开始骑行</h3>
+          <p class="navigation-step-note">GPX 的第一点是地图上的绿色起点，不是你当前的位置。</p>
           <a id="detail-gpx" class="button primary" href="blackberry-v2.gpx" download
-            >下载 GPX 完整轨迹</a
+            >导入固定起点 GPX</a
           >
           <p class="nav-limit">
-            Apple Maps / Google Maps
-            只用于到停车点，不会被包装成完整路线导航。骑行请使用本页轨迹或将 GPX
-            导入支持「跟随轨迹」的骑行 App；不要让 OSM 把 1,000 多个轨迹点重新规划成逐站导航，否则可能显示十几个小时。到蓝色折返点后沿原路返回。
+            Apple Maps / Google Maps 只负责驾车接驳。导入 GPX 后若 App 仍显示“当前位置 → 骑行起点”，那是 App 自动添加的接驳段，不属于 GPX；到达绿色起点后选择「从此处开始」或「跟随轨迹」。不要让 OSM 把 1,000 多个轨迹点重新规划成逐站导航，否则可能显示十几个小时。到蓝色折返点后沿原路返回。
           </p>
         </section>
         <section id="photos-section" class="photos-section">
@@ -270,7 +271,7 @@
           </a>
           <a id="mobile-gpx" href="blackberry-v2.gpx" download>
             <i class="ri-download-cloud-2-line" aria-hidden="true"></i>
-            GPX 轨迹
+            固定起点 GPX
           </a>
         </nav>
         <button

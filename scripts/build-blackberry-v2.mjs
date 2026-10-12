@@ -99,8 +99,9 @@ const points = coordinates
 const gpx = `<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="Rodrigues Rides" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
   <metadata><name>Stevens Creek Trail 往返线</name><desc>Blackberry Farm to McClellan Road on the bicycle-permitted Stevens Creek Trail; return the same way. Map verified; field ride pending.</desc></metadata>
+  <wpt lat="${coordinates[0][1]}" lon="${coordinates[0][0]}"><name>骑行线路起点 / 终点</name><sym>Flag, Green</sym><type>Route Start</type></wpt>
   <wpt lat="${start.lat}" lon="${start.lon}"><name>Blackberry Farm public parking</name><sym>Parking Area</sym></wpt>
-  <wpt lat="${turnaround.lat}" lon="${turnaround.lon}"><name>McClellan Road turnaround</name><sym>Flag, Blue</sym></wpt>
+  <wpt lat="${turnaround.lat}" lon="${turnaround.lon}"><name>McClellan Road turnaround</name><sym>Flag, Blue</sym><type>Turnaround</type></wpt>
   <trk><name>Stevens Creek Trail 往返线</name><type>Cycling</type><trkseg>
 ${points}
   </trkseg></trk>

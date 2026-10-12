@@ -354,10 +354,14 @@ function gpxDocument(definition, coordinates, parking) {
   const parkingPoint = parking
     ? `  <wpt lat="${parking.lat}" lon="${parking.lon}"><name>${parking.name}</name><sym>Parking Area</sym></wpt>\n`
     : "";
+  const start = coordinates[0];
+  const turnaround = coordinates[Math.floor((coordinates.length - 1) / 2)];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="Rodrigues Rides" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
   <metadata><name>${definition.name}</name><desc>Map-reviewed bicycle route; field ride pending. Return on the same route.</desc></metadata>
-${parkingPoint}  <trk><name>${definition.name}</name><type>Cycling</type><trkseg>
+  <wpt lat="${start[1]}" lon="${start[0]}"><name>骑行线路起点 / 终点</name><sym>Flag, Green</sym><type>Route Start</type></wpt>
+${parkingPoint}  <wpt lat="${turnaround[1]}" lon="${turnaround[0]}"><name>骑行折返点：沿原路返回</name><sym>Flag, Blue</sym><type>Turnaround</type></wpt>
+  <trk><name>${definition.name}</name><type>Cycling</type><trkseg>
 ${points}
   </trkseg></trk>
 </gpx>
