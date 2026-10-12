@@ -120,6 +120,20 @@
           <p class="navigation-step-note">GPX 的第一点是地图上的绿色起点，不是你当前的位置。</p>
           <button id="ride-from-start" class="button primary" type="button">从绿色起点打开骑行地图</button>
           <a id="detail-gpx" class="button secondary gpx-download" href="blackberry-v2.gpx" download>下载固定起点 GPX</a>
+          <details class="osmand-help" open>
+            <summary>OsmAnd 仍显示「从：我的位置」？</summary>
+            <p>这是 OsmAnd 自动加入的接驳起点，不是 GPX 轨迹的一部分。不要直接点「开始」：</p>
+            <ol>
+              <li>点导航页顶部的「从：我的位置」。</li>
+              <li>选择「在地图上选择」或搜索下面的固定起点坐标。</li>
+              <li>将起点改成绿色骑行起点，再选择「跟随轨迹」。</li>
+            </ol>
+            <div class="route-start-copy-row">
+              <code id="osmand-start-coordinate">37.317705, -122.060421</code>
+              <button id="copy-route-start" type="button">复制起点坐标</button>
+            </div>
+            <p class="osmand-setting">也可在「设置 → 跟随轨迹 → 导航到」中选择「轨迹起点」。<a href="https://www.osmand.net/docs/user/navigation/setup/gpx-navigation/?current-os=ios" target="_blank" rel="noopener">OsmAnd 官方说明</a></p>
+          </details>
           <p class="nav-limit">
             Apple Maps / Google Maps 只负责驾车接驳。导入 GPX 后若 App 仍显示“当前位置 → 骑行起点”，那是 App 自动添加的接驳段，不属于 GPX；到达绿色起点后选择「从此处开始」或「跟随轨迹」。不要让 OSM 把 1,000 多个轨迹点重新规划成逐站导航，否则可能显示十几个小时。到蓝色折返点后沿原路返回。
           </p>

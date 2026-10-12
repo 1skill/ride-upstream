@@ -270,6 +270,9 @@ function updateRouteDetails(route, data) {
   document.querySelector("#duration").textContent = routeDuration(route.distanceKm);
   document.querySelector("#difficulty").textContent = routeDifficulty(route);
   document.querySelector("#detail-start").textContent = `${start[1].toFixed(5)}, ${start[0].toFixed(5)}`;
+  const osmandStart = document.querySelector("#osmand-start-coordinate");
+  osmandStart.textContent = `${start[1].toFixed(6)}, ${start[0].toFixed(6)}`;
+  osmandStart.dataset.coordinate = osmandStart.textContent;
   document.querySelector("#detail-parking").textContent = parkingVerified
     ? route.parking.name
     : `${driveTarget.name}；已开放驾车到起点附近，停车合法性仍须按现场标志确认`;
@@ -502,6 +505,17 @@ document.querySelector("#ride-from-start").addEventListener("click", () => {
   if (!selectedRouteId) return;
   setSheet(false);
   setMobileMode("ride");
+});
+document.querySelector("#copy-route-start").addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  const coordinate = document.querySelector("#osmand-start-coordinate").dataset.coordinate;
+  try {
+    await navigator.clipboard.writeText(coordinate);
+    button.textContent = "已复制";
+  } catch {
+    button.textContent = "长按左侧复制";
+  }
+  setTimeout(() => (button.textContent = "复制起点坐标"), 1800);
 });
 function syncMobileControlA11y() {
   const focused = document.body.classList.contains("route-focused");

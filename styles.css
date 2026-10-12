@@ -276,6 +276,63 @@ h2 {
 .navigation-block .gpx-download {
   margin-top: 8px;
 }
+.osmand-help {
+  margin-top: 10px;
+  padding: 11px 12px;
+  border: 1px solid #d8e3df;
+  border-radius: 13px;
+  background: #f6faf8;
+  color: #40504a;
+  font-size: 11px;
+  line-height: 1.55;
+}
+.osmand-help summary {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.osmand-help p {
+  margin: 8px 0;
+}
+.osmand-help ol {
+  margin: 7px 0 10px;
+  padding-left: 20px;
+}
+.route-start-copy-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.route-start-copy-row code {
+  min-width: 0;
+  flex: 1;
+  padding: 8px 9px;
+  border-radius: 8px;
+  background: #e7efec;
+  color: #18342c;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.route-start-copy-row button {
+  flex: none;
+  min-height: 34px;
+  border: 0;
+  border-radius: 9px;
+  padding: 0 10px;
+  background: var(--forest);
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+}
+.osmand-help .osmand-setting {
+  margin-bottom: 0;
+  color: #63736d;
+}
+.osmand-help a {
+  color: var(--forest);
+  font-weight: 800;
+}
 .section-title {
   display: flex;
   justify-content: space-between;
