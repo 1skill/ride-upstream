@@ -206,6 +206,15 @@ function fitRouteLayer(layer) {
   else map.fitBounds(layer.getBounds(), { padding: [50, 50] });
 }
 
+function centerRouteInOverview(layer) {
+  const center = layer.getBounds().getCenter();
+  const overviewZoom = window.innerWidth < 761 ? 8 : 9;
+  map.flyTo(center, Math.min(map.getZoom(), overviewZoom), {
+    animate: true,
+    duration: 0.55,
+  });
+}
+
 function setLinkState(link, href, label) {
   link.textContent = label;
   link.classList.toggle("disabled", !href);
@@ -250,8 +259,8 @@ function updateRouteDetails(route, data) {
   setLinkState(document.querySelector("#google-drive"), google, parkingVerified ? "Google Maps 驾车到停车点" : "Google Maps 驾车到起点附近");
   const mobileApple = document.querySelector("#mobile-apple-drive");
   const mobileGoogle = document.querySelector("#mobile-google-drive");
-  mobileApple.innerHTML = `<i class="ri-parking-box-line" aria-hidden="true"></i>${parkingVerified ? "Apple 停车" : "Apple 到起点"}`;
-  mobileGoogle.innerHTML = `<i class="ri-car-line" aria-hidden="true"></i>${parkingVerified ? "Google 停车" : "Google 到起点"}`;
+  mobileApple.innerHTML = `<i class="ri-parking-box-line" aria-hidden="true"></i>${parkingVerified ? "从当前位置开车" : "从当前位置到起点"}`;
+  mobileGoogle.innerHTML = `<i class="ri-car-line" aria-hidden="true"></i>${parkingVerified ? "Google 驾车" : "Google 到起点"}`;
   setLinkState(mobileApple, apple, mobileApple.textContent);
   setLinkState(mobileGoogle, google, mobileGoogle.textContent);
   document.querySelector("#detail-gpx").href = route.gpx;
@@ -304,6 +313,15 @@ function markerIcon(type) {
     html,
     iconSize: type === "parking" ? [26, 26] : [20, 20],
     iconAnchor: type === "parking" ? [13, 13] : [10, 10],
+  });
+}
+
+function routeLabelIcon(name) {
+  return L.divIcon({
+    className: "",
+    html: `<div class="route-location-label">${name}</div>`,
+    iconSize: [190, 32],
+    iconAnchor: [95, 44],
   });
 }
 
@@ -489,6 +507,11 @@ function setMobileMode(mode) {
   }
   syncMobileControlA11y();
 }
+document.querySelector("#ride-from-start").addEventListener("click", () => {
+  if (!selectedRouteId) return;
+  setSheet(false);
+  setMobileMode("ride");
+});
 function syncMobileControlA11y() {
   const focused = document.body.classList.contains("route-focused");
   const riding = document.body.classList.contains("ride-mode");
@@ -652,7 +675,7 @@ async function loadOverview() {
       );
       if (decorator) overviewDecorators.set(route.id, decorator);
     }
-    const selectRoute = () => {
+    const selectRoute = ({ detail = false } = {}) => {
       selectedRouteId = route.id;
       document.body.classList.add("route-focused");
       saveState({ selectedRouteId: route.id });
@@ -660,9 +683,11 @@ async function loadOverview() {
         route.id === ROUTE_ID
           ? routeFeature && L.geoJSON(routeFeature)
           : overviewLayers.get(route.id);
-      if (layer) fitRouteLayer(layer);
-      if (route.id !== ROUTE_ID) overviewLayers.get(route.id)?.openPopup();
-      else map.closePopup();
+      if (layer) {
+        if (detail) fitRouteLayer(layer);
+        else centerRouteInOverview(layer);
+      }
+      map.closePopup();
       overviewLayers.forEach((item, id) =>
         item.setStyle({
           weight: id === route.id ? 7 : 3,
@@ -680,6 +705,12 @@ async function loadOverview() {
         ? "完整骑行轨迹"
         : "候选轨迹";
       updateRouteDetails(route, data);
+      if (!detail && layer)
+        L.marker(layer.getBounds().getCenter(), {
+          icon: routeLabelIcon(route.name),
+          interactive: false,
+          zIndexOffset: 650,
+        }).addTo(selectionMarkers);
       document
         .querySelectorAll(".mobile-route-card")
         .forEach((item) =>
@@ -696,17 +727,17 @@ async function loadOverview() {
       syncMobileControlA11y();
     };
     if (published) {
-      button.addEventListener("click", selectRoute);
-      routeSelectors.set(route.id, selectRoute);
-      overviewLayers.get(route.id)?.on("click", selectRoute);
+      button.addEventListener("click", () => selectRoute());
+      routeSelectors.set(route.id, () => selectRoute());
+      overviewLayers.get(route.id)?.on("click", () => selectRoute());
       card
         .querySelector(".route-card-main")
-        .addEventListener("click", selectRoute);
+        .addEventListener("click", () => selectRoute());
     }
     card
       .querySelector(".route-card-details")
       ?.addEventListener("click", () => {
-        selectRoute();
+        selectRoute({ detail: true });
         setSheet(true);
       });
   }
