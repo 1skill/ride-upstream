@@ -29,6 +29,11 @@ const routeDefinitions = [
     kind: "namedTrail",
     query: "Sawyer Camp Trail, California",
     officialSource: "https://www.smcgov.org/parks/sawyer-camp-segment",
+    parking: {
+      lat: 37.5310108,
+      lon: -122.363993,
+      name: "Sawyer Camp Trail South Gate parking (Crystal Springs Road / Skyline Boulevard)",
+    },
   },
   {
     id: "portola-loop",

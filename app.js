@@ -237,21 +237,21 @@ function routeDifficulty(route) {
 function updateRouteDetails(route, data) {
   const { start, turnaround } = routeEndpoints(data);
   const parkingVerified = route.parking && !route.parking.unverified;
-  const destination = parkingVerified
-    ? encodeURIComponent(`${route.parking.lat},${route.parking.lon}`)
-    : null;
-  const apple = destination
-    ? `https://maps.apple.com/?daddr=${destination}&dirflg=d`
-    : null;
-  const google = destination
-    ? `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`
-    : null;
-  setLinkState(document.querySelector("#apple-drive"), apple, parkingVerified ? "Apple Maps 驾车" : "停车点待核验");
-  setLinkState(document.querySelector("#google-drive"), google, parkingVerified ? "Google Maps 驾车" : "停车点待核验");
+  const driveTarget = route.parking || {
+    lat: start[1],
+    lon: start[0],
+    name: "骑行起点附近",
+    unverified: true,
+  };
+  const destination = encodeURIComponent(`${driveTarget.lat},${driveTarget.lon}`);
+  const apple = `https://maps.apple.com/?daddr=${destination}&dirflg=d`;
+  const google = `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving&dir_action=navigate`;
+  setLinkState(document.querySelector("#apple-drive"), apple, parkingVerified ? "Apple Maps 驾车到停车点" : "Apple Maps 驾车到起点附近");
+  setLinkState(document.querySelector("#google-drive"), google, parkingVerified ? "Google Maps 驾车到停车点" : "Google Maps 驾车到起点附近");
   const mobileApple = document.querySelector("#mobile-apple-drive");
   const mobileGoogle = document.querySelector("#mobile-google-drive");
-  mobileApple.innerHTML = `<i class="ri-parking-box-line" aria-hidden="true"></i>${parkingVerified ? "Apple 停车" : "停车待核验"}`;
-  mobileGoogle.innerHTML = `<i class="ri-car-line" aria-hidden="true"></i>${parkingVerified ? "Google 停车" : "停车待核验"}`;
+  mobileApple.innerHTML = `<i class="ri-parking-box-line" aria-hidden="true"></i>${parkingVerified ? "Apple 停车" : "Apple 到起点"}`;
+  mobileGoogle.innerHTML = `<i class="ri-car-line" aria-hidden="true"></i>${parkingVerified ? "Google 停车" : "Google 到起点"}`;
   setLinkState(mobileApple, apple, mobileApple.textContent);
   setLinkState(mobileGoogle, google, mobileGoogle.textContent);
   document.querySelector("#detail-gpx").href = route.gpx;
@@ -272,7 +272,7 @@ function updateRouteDetails(route, data) {
   document.querySelector("#detail-start").textContent = `${start[1].toFixed(5)}, ${start[0].toFixed(5)}`;
   document.querySelector("#detail-parking").textContent = parkingVerified
     ? route.parking.name
-    : "合法停车位置尚未现场确认；请自行核对现场标志，驾车导航暂不开放";
+    : `${driveTarget.name}；已开放驾车到起点附近，停车合法性仍须按现场标志确认`;
   document.querySelector("#detail-surface").textContent = route.surface || "道路级往返轨迹；到蓝色折返点后沿原路返回";
   document.querySelector("#detail-review-note").textContent = route.reviewNote;
   document.querySelector("#photos-section").hidden = route.id !== ROUTE_ID;
