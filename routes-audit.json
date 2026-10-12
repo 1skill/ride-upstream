@@ -12,7 +12,9 @@
       "descentM": 49,
       "loopGapM": 0,
       "metricSource": "GPS geometry + Valhalla/SRTM elevation",
-      "verification": "map-verified-field-pending"
+      "verification": "invalid-geometry-review",
+      "mapStatus": "hidden-invalid-self-intersections",
+      "reviewNote": "53-point geometry contains 28 non-adjacent segment intersections and crosses areas without confirmed bike access; removed pending a complete road-level rebuild."
     },
     {
       "id": "los-gatos-creek",

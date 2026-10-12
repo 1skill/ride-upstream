@@ -124,6 +124,16 @@ function directionDecorator(layer, color) {
 
 async function loadRoute() {
   try {
+    const auditResponse = await fetch("routes-audit.json", { cache: "no-store" });
+    if (!auditResponse.ok) throw new Error("audit");
+    const audit = await auditResponse.json();
+    auditedRoutes = audit.routes;
+    const routeAudit = auditedRoutes.find((route) => route.id === ROUTE_ID);
+    if (!routeAudit || routeAudit.mapStatus?.startsWith("hidden-invalid")) {
+      map.setView([START.lat, START.lon], 12);
+      await loadPhotos().catch(() => {});
+      return;
+    }
     const response = await fetch("blackberry-v2.geojson");
     if (!response.ok) throw new Error("route");
     routeFeature = await response.json();
@@ -334,10 +344,12 @@ function applyOverviewFilters() {
 }
 
 async function loadOverview() {
-  const audit = await fetch("routes-audit.json").then((response) =>
-    response.json(),
-  );
-  auditedRoutes = audit.routes;
+  if (!auditedRoutes.length) {
+    const audit = await fetch("routes-audit.json", { cache: "no-store" }).then(
+      (response) => response.json(),
+    );
+    auditedRoutes = audit.routes;
+  }
   document.querySelector("#routes-open b").textContent = auditedRoutes.length;
   const list = document.querySelector("#overview-list");
   const carousel = document.querySelector("#mobile-route-carousel");
@@ -357,24 +369,25 @@ async function loadOverview() {
     const button = document.createElement("button");
     const verified = route.verification === "map-verified-field-pending";
     const invalid = route.mapStatus?.startsWith("hidden-invalid");
+    const published = verified && !invalid;
     button.type = "button";
     button.className = `overview-route${verified ? " verified" : ""}${invalid ? " invalid" : ""}`;
     button.dataset.overviewRoute = route.id;
-    button.disabled = invalid;
-    button.innerHTML = `<strong>${route.name}</strong><span>${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m · ${verified ? "地图已核验" : invalid ? "异常轨迹已隐藏" : "候选待核验"}</span>`;
+    button.disabled = !published;
+    button.innerHTML = `<strong>${route.name}</strong><span>${published ? `${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m · 地图已核验` : `${route.area} · ${invalid ? "异常轨迹已隐藏" : "候选数据复核中"}`}</span>`;
     list.append(button);
     const card = document.createElement("article");
-    card.className = `mobile-route-card${verified ? " verified" : ""}${invalid ? " invalid" : ""}`;
+    card.className = `mobile-route-card${published ? " verified" : " invalid"}`;
     card.dataset.carouselRoute = route.id;
-    card.innerHTML = `<button class="route-card-main" type="button" aria-label="选择 ${route.name}" ${invalid ? "disabled" : ""}><span class="route-card-status">${verified ? "已核验" : invalid ? "已隐藏" : "候选"}</span><strong>${route.name}</strong><span>${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m</span><small>${verified ? "可查看完整轨迹与 GPX" : invalid ? "轨迹跨水异常，等待重建" : "道路权限复核中"}</small></button>${verified ? '<button class="route-card-details" type="button">详情</button>' : ""}`;
+    card.innerHTML = `<button class="route-card-main" type="button" aria-label="选择 ${route.name}" ${published ? "" : "disabled"}><span class="route-card-status">${published ? "已核验" : invalid ? "已隐藏" : "复核中"}</span><strong>${route.name}</strong><span>${published ? `${route.area} · ${route.distanceKm} km · ↑ ${route.climbM} m` : `${route.area} · 距离与爬升待复核`}</span><small>${published ? "可查看完整轨迹与 GPX" : invalid ? "异常轨迹已撤下，等待重建" : "详细轨迹暂停展示"}</small></button>${published ? '<button class="route-card-details" type="button">详情</button>' : ""}`;
     carousel.append(card);
-    if (!invalid) allBounds.extend(L.geoJSON(data).getBounds());
+    if (published) allBounds.extend(L.geoJSON(data).getBounds());
     if (route.id === ROUTE_ID) {
       overviewLayers.set(route.id, mainRouteLayer);
       if (mainRouteDecorator)
         overviewDecorators.set(route.id, mainRouteDecorator);
     }
-    if (route.id !== ROUTE_ID && !invalid) {
+    if (route.id !== ROUTE_ID && published) {
       const layer = L.geoJSON(data, {
         style: { color: routeColors[index], weight: 4, opacity: 0.72 },
       }).addTo(map);
@@ -428,7 +441,7 @@ async function loadOverview() {
       setSheet(false);
       syncMobileControlA11y();
     };
-    if (!invalid) {
+    if (published) {
       button.addEventListener("click", selectRoute);
       routeSelectors.set(route.id, selectRoute);
       card
@@ -735,7 +748,7 @@ window.addEventListener("resize", () => map.invalidateSize());
 loadRoute()
   .then(() => loadOverview())
   .then((bounds) => {
-    if (!didRestoreState)
+    if (!didRestoreState && bounds.isValid())
       map.fitBounds(bounds, {
         padding: window.innerWidth < 761 ? [28, 90] : [50, 50],
       });
